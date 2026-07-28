@@ -1,7 +1,9 @@
-import { db } from "./firebase.js";
+import {
+  produtosCollection as getProdutosCollection,
+  produtosRef,
+} from "./firestore-paths.js";
 
 import {
-  collection,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -16,12 +18,7 @@ import {
   limit,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ==========================================================
-   MESA FÁCIL
-   PRODUCTS SERVICE
-========================================================== */
-
-const produtosRef = collection(db, "produtos");
+const produtosCollection = getProdutosCollection();
 
 /* ==========================================================
    CLOUDINARY
@@ -143,7 +140,7 @@ export async function criarProduto(dados) {
       updatedAt: serverTimestamp(),
     };
 
-    return await addDoc(produtosRef, produto);
+    return await addDoc(produtosCollection, produto);
   } catch (erro) {
     console.error("Erro ao criar produto:", erro);
     throw erro;
@@ -183,7 +180,7 @@ export async function editarProduto(id, dados) {
       updatePayload.imagemPublicId = upload.publicId;
     }
 
-    await updateDoc(doc(db, "produtos", id), updatePayload);
+    await updateDoc(doc(produtosRef(), id), updatePayload);
   } catch (erro) {
     console.error("Erro ao editar produto:", erro);
     throw erro;
@@ -196,7 +193,7 @@ export async function editarProduto(id, dados) {
 
 export async function excluirProduto(id) {
   try {
-    await deleteDoc(doc(db, "produtos", id));
+    await deleteDoc(doc(produtosRef(), id));
   } catch (erro) {
     console.error("Erro ao excluir produto:", erro);
     throw erro;
@@ -205,7 +202,7 @@ export async function excluirProduto(id) {
 
 export async function alterarStatusProduto(id, ativo) {
   try {
-    await updateDoc(doc(db, "produtos", id), {
+    await updateDoc(doc(produtosRef(), id), {
       ativo,
       updatedAt: serverTimestamp(),
     });
@@ -221,7 +218,7 @@ export async function alterarStatusProduto(id, ativo) {
 
 export async function buscarProduto(id) {
   try {
-    const produto = await getDoc(doc(db, "produtos", id));
+    const produto = await getDoc(doc(produtosRef(), id));
 
     if (!produto.exists()) {
       return null;
@@ -243,7 +240,7 @@ export async function buscarProduto(id) {
 
 export async function listarProdutos() {
   try {
-    const q = query(produtosRef, orderBy("nome", "asc"));
+    const q = query(produtosCollection, orderBy("nome", "asc"));
     const snap = await getDocs(q);
 
     const produtos = [];
@@ -271,7 +268,7 @@ export async function listarProdutos() {
 ========================================================== */
 
 export function ouvirProdutos(callback) {
-  const q = query(produtosRef, orderBy("nome", "asc"));
+  const q = query(produtosCollection, orderBy("nome", "asc"));
 
   return onSnapshot(
     q,
@@ -306,7 +303,7 @@ export async function incrementarVendasProdutos(itens = []) {
       .map((item) => {
         const quantidade = Number(item.quantidade || 1);
 
-        return updateDoc(doc(db, "produtos", item.produtoId), {
+        return updateDoc(doc(produtosRef(), item.produtoId), {
           vendas: increment(quantidade),
           updatedAt: serverTimestamp(),
         });
@@ -326,7 +323,7 @@ export async function incrementarVendasProdutos(itens = []) {
 export async function listarProdutosMaisVendidos(limite = 3) {
   try {
     const q = query(
-      produtosRef,
+      produtosCollection,
       orderBy("vendas", "desc"),
       orderBy("nome", "asc"),
       limit(limite),

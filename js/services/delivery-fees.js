@@ -1,7 +1,9 @@
-import { db } from "./firebase.js";
+import {
+    taxasEntregaCollection as getTaxasEntregaCollection,
+    taxasEntregaRef
+} from "./firestore-paths.js";
 
 import {
-  collection,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -17,7 +19,7 @@ import {
    DELIVERY FEES SERVICE
 ========================================================== */
 
-const taxasEntregaRef = collection(db, "taxasEntrega");
+const taxasEntregaCollection = getTaxasEntregaCollection();
 
 /* ==========================================================
    HELPERS
@@ -99,7 +101,7 @@ export async function criarTaxaEntrega(dados) {
 
   console.log("PAYLOAD FIRESTORE:", payload);
 
-  const ref = await addDoc(taxasEntregaRef, payload);
+  const ref = await addDoc(taxasEntregaCollection, payload);
 
   console.log("CRIADO COM ID:", ref.id);
 
@@ -136,7 +138,7 @@ export async function editarTaxaEntrega(id, dados) {
     updatePayload.ruas = Array.isArray(dados.ruas) ? dados.ruas : [];
   }
 
-  await updateDoc(doc(db, "taxasEntrega", id), updatePayload);
+  await updateDoc(doc(taxasEntregaRef(), id), updatePayload);
 }
 
 /* ==========================================================
@@ -144,7 +146,7 @@ export async function editarTaxaEntrega(id, dados) {
 ========================================================== */
 
 export async function excluirTaxaEntrega(id) {
-  await deleteDoc(doc(db, "taxasEntrega", id));
+  await deleteDoc(doc(taxasEntregaRef(), id));
 }
 
 /* ==========================================================
@@ -152,7 +154,7 @@ export async function excluirTaxaEntrega(id) {
 ========================================================== */
 
 export async function buscarTaxaEntrega(id) {
-  const snap = await getDoc(doc(db, "taxasEntrega", id));
+  const snap = await getDoc(doc(taxasEntregaRef(), id));
 
   if (!snap.exists()) return null;
 
@@ -167,7 +169,7 @@ export async function buscarTaxaEntrega(id) {
 ========================================================== */
 
 export async function listarTaxasEntrega() {
-  const snapshot = await getDocs(taxasEntregaRef);
+  const snapshot = await getDocs(taxasEntregaCollection);
 
   const taxas = snapshot.docs.map((docItem) => ({
     id: docItem.id,
@@ -192,7 +194,7 @@ export async function listarTaxasEntregaAtivas() {
 
 export function ouvirTaxasEntrega(callback) {
   return onSnapshot(
-    taxasEntregaRef,
+    taxasEntregaCollection,
     (snapshot) => {
       const taxas = snapshot.docs.map((docItem) => ({
         id: docItem.id,

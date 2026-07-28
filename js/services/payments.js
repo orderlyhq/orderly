@@ -1,13 +1,15 @@
-import { db } from "./firebase.js";
+import {
+  pagamentosRef,
+  configuracoesRef,
+} from "./firestore-paths.js";
 import {
   addDoc,
-  collection,
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 export async function criarPagamento(pedidoId, valorTotal) {
-  await addDoc(collection(db, "pagamentos"), {
+  await addDoc(pagamentosRef(), {
     pedidoId,
     valorTotal,
     status: "PENDENTE",
@@ -17,7 +19,7 @@ export async function criarPagamento(pedidoId, valorTotal) {
 
 export async function carregarFormasPagamento() {
   const snap = await getDoc(
-    doc(db, "configuracoes", "geral")
+    doc(configuracoesRef(), "geral")
   );
 
   if (!snap.exists()) return [];

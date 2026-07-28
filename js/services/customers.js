@@ -1,4 +1,5 @@
-import { db, auth } from "./firebase.js";
+import { auth } from "./firebase.js";
+import { clientesRef } from "./firestore-paths.js";
 
 import {
   doc,
@@ -29,7 +30,7 @@ export async function garantirClienteAuth() {
 export async function buscarCliente() {
   const user = await garantirClienteAuth();
 
-  const ref = doc(db, "clientes", user.uid);
+  const ref = doc(clientesRef(), user.uid);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
@@ -71,7 +72,7 @@ export async function salvarCliente(dados) {
     atualizadoEm: serverTimestamp(),
   };
 
-  const ref = doc(db, "clientes", user.uid);
+  const ref = doc(clientesRef(), user.uid);
 
   const clienteExistente = await getDoc(ref);
 

@@ -1,8 +1,12 @@
-import { db } from "./firebase.js";
+import {
+  pedidosCollection as getPedidosCollection,
+  pedidosRef,
+  clientesRef,
+  produtosRef,
+} from "./firestore-paths.js";
 import { incrementarVendasProdutos } from "./products.js";
 
 import {
-  collection,
   addDoc,
   onSnapshot,
   doc,
@@ -23,7 +27,7 @@ import {
    ORDERS SERVICE
 ========================================================== */
 
-const pedidosRef = collection(db, "pedidos");
+const pedidosCollection = getPedidosCollection();
 
 function getInicioEFimDeHoje() {
   const agora = new Date();
@@ -123,7 +127,7 @@ function extrairBairro(endereco = "") {
 async function atualizarEstatisticasCliente(dados) {
   if (!dados.clienteId) return;
 
-  const clienteRef = doc(db, "clientes", dados.clienteId);
+  const clienteRef = doc(clientesRef(), dados.clienteId);
 
   await updateDoc(clienteRef, {
     totalPedidos: increment(1),
@@ -202,7 +206,7 @@ export async function criarPedido(dados) {
     atualizadoEm: agora,
   };
 
-  const pedidoRef = await addDoc(pedidosRef, payload);
+  const pedidoRef = await addDoc(pedidosCollection, payload);
 
   await incrementarVendasProdutos(itens);
 
@@ -232,7 +236,7 @@ export async function editarPedido(id, dados) {
       );
     }
 
-    await updateDoc(doc(db, "pedidos", id), updatePayload);
+    await updateDoc(doc(pedidosRef(), id), updatePayload);
   } catch (erro) {
     console.error("Erro ao editar pedido:", erro);
     throw erro;
@@ -245,7 +249,7 @@ export async function editarPedido(id, dados) {
 
 export async function alterarStatus(id, status) {
   try {
-    await updateDoc(doc(db, "pedidos", id), {
+    await updateDoc(doc(pedidosRef(), id), {
       status,
       atualizadoEm: serverTimestamp(),
     });
@@ -262,7 +266,7 @@ export async function alterarStatus(id, status) {
 export async function atualizarEntregadorPedido(id, entrega) {
   try {
     await updateDoc(
-      doc(db, "pedidos", id),
+      doc(pedidosRef(), id),
 
       {
         entrega,
@@ -291,7 +295,7 @@ export async function cancelarPedido(id) {
 
 export async function excluirPedido(id) {
   try {
-    await deleteDoc(doc(db, "pedidos", id));
+    await deleteDoc(doc(pedidosRef(), id));
   } catch (erro) {
     console.error("Erro ao excluir pedido:", erro);
     throw erro;
@@ -304,7 +308,7 @@ export async function excluirPedido(id) {
 
 export async function buscarPedido(id) {
   try {
-    const pedidoSnap = await getDoc(doc(db, "pedidos", id));
+    const pedidoSnap = await getDoc(doc(pedidosRef(), id));
 
     if (!pedidoSnap.exists()) {
       return null;
@@ -322,7 +326,7 @@ export async function buscarPedido(id) {
 
 export async function marcarComoImpresso(id) {
   try {
-    await updateDoc(doc(db, "pedidos", id), {
+    await updateDoc(doc(pedidosRef(), id), {
       impresso: true,
       impressoEm: serverTimestamp(),
     });
@@ -361,7 +365,7 @@ export function ouvirPedidosPorPeriodo(dataInicio, dataFim, callback) {
   fim.setHours(23, 59, 59, 999);
 
   const q = query(
-    pedidosRef,
+    pedidosCollection,
 
     where("criadoEm", ">=", Timestamp.fromDate(inicio)),
 
@@ -398,7 +402,7 @@ export function ouvirPedidosPorPeriodo(dataInicio, dataFim, callback) {
 ========================================================== */
 
 export function ouvirPedidoPorId(pedidoId, onSuccess, onNotFound) {
-  const ref = doc(db, "pedidos", pedidoId);
+  const ref = doc(pedidosRef(), pedidoId);
 
   return onSnapshot(
     ref,
@@ -455,7 +459,7 @@ export async function buscarPedidosPorPeriodo(
   fim.setHours(23, 59, 59, 999);
 
   const q = query(
-    pedidosRef,
+    pedidosCollection,
 
     where("criadoEm", ">=", Timestamp.fromDate(inicio)),
 
@@ -495,7 +499,7 @@ export function ouvirPedidosCliente(uid, callback) {
   const { inicioHoje, inicioAmanha } = getInicioEFimDeHoje();
 
   const q = query(
-    pedidosRef,
+    pedidosCollection,
     where("clienteId", "==", uid),
     where("criadoEm", ">=", inicioHoje),
     where("criadoEm", "<", inicioAmanha),

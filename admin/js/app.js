@@ -1,6 +1,7 @@
 import { carregarSidebar } from "../components/sidebar.js";
 import { carregarHeader } from "../components/header.js";
 import { protegerPaginaAdmin } from "../../js/services/auth.js";
+import { bootstrapEmpresa } from "../../js/services/bootstrap.js";
 import "./notificadorPedidos.js";
 
 /* ==========================================================
@@ -14,6 +15,8 @@ async function iniciarAdmin() {
   if (!autorizado) {
     return;
   }
+
+  await bootstrapEmpresa();
 
   carregarSidebar();
   carregarHeader();

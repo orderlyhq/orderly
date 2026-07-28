@@ -1,4 +1,5 @@
 import { db } from "../services/firebase.js";
+import { bootstrapEmpresa } from "../services/bootstrap.js";
 import {
   doc,
   getDoc,
@@ -169,6 +170,8 @@ async function carregarConfiguracoesLoja() {
 
 window.addEventListener("DOMContentLoaded", async () => {
   try {
+    await bootstrapEmpresa();
+
     await garantirClienteAuth();
 
     await iniciarCliente();

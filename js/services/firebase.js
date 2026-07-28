@@ -3,14 +3,13 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCv9EjCPGl3SlvHUaRCBShLZhT04aVl8wM",
-  authDomain: "mesa-facil-62310.firebaseapp.com",
-  databaseURL: "https://mesa-facil-62310-default-rtdb.firebaseio.com",
-  projectId: "mesa-facil-62310",
-  storageBucket: "mesa-facil-62310.firebasestorage.app",
-  messagingSenderId: "170185351689",
-  appId: "1:170185351689:web:a3fecbda25e40384ef8ed8",
-  measurementId: "G-LWCWGT8WEZ"
+  apiKey: "AIzaSyAWTfgO5ReMCGi6p8r5FjAAa136wt6wn44",
+  authDomain: "orderly-system.firebaseapp.com",
+  projectId: "orderly-system",
+  storageBucket: "orderly-system.firebasestorage.app",
+  messagingSenderId: "476039540141",
+  appId: "1:476039540141:web:4640a75dcbc6d0e3624524",
+  measurementId: "G-YSYTQTXJ2T"
 };
 
 const app = initializeApp(firebaseConfig);
