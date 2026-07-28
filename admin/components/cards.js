@@ -1,0 +1,194 @@
+// ======================================================
+// MESA FÁCIL
+// COMPONENTE - CARDS DO DASHBOARD
+// ======================================================
+
+const cards = [
+
+    {
+        id: "cardFinalizados",
+        classe: "card-finalizados",
+        icone: "📦",
+        titulo: "Pedidos Finalizados",
+        valor: "",
+        footer: ""
+    },
+
+    {
+        id: "cardPreparo",
+        classe: "card-preparo",
+        icone: "👨‍🍳",
+        titulo: "Em Preparo",
+        valor: "",
+        footer: ""
+    },
+
+    {
+        id: "cardProntos",
+        classe: "card-prontos",
+        icone: "✅",
+        titulo: "Pedidos Prontos",
+        valor: "",
+        footer: ""
+    },
+
+    {
+        id: "cardEntregues",
+        classe: "card-entregues",
+        icone: "🚚",
+        titulo: "Pedidos Entregues",
+        valor: "",
+        footer: ""
+    },
+
+    {
+        id: "cardLoja",
+        classe: "card-loja",
+        icone: "🟢",
+        titulo: "Loja",
+        valor: "",
+        footer: ""
+    },
+
+    {
+        id: "cardFaturamento",
+        classe: "card-faturamento",
+        icone: "💰",
+        titulo: "Faturamento",
+        valor: "",
+        footer: ""
+    }
+
+];
+
+// ======================================================
+// CRIAÇÃO DOS CARDS
+// ======================================================
+
+function criarCard(card) {
+  const container = document.getElementById(card.id);
+
+  if (!container) return;
+
+  container.innerHTML = `
+
+        <div class="card ${card.classe}">
+
+            <div class="card-icon">
+                ${card.icone}
+            </div>
+
+
+            <div class="card-title">
+                ${card.titulo}
+            </div>
+
+
+            <div 
+            class="card-value" 
+            id="${card.id}Valor">
+
+                ${card.valor || "..."}
+
+            </div>
+
+
+            <div 
+            class="card-footer" 
+            id="${card.id}Footer">
+
+                ${card.footer || "..."}
+
+            </div>
+
+
+        </div>
+
+    `;
+}
+
+cards.forEach(criarCard);
+
+// ======================================================
+// ATUALIZAÇÃO VISUAL
+// ======================================================
+
+export function atualizarCard(id, valor) {
+  const campo = document.getElementById(id + "Valor");
+
+  if (campo) {
+    campo.innerHTML = valor;
+  }
+}
+
+// ======================================================
+
+export function atualizarRodape(id, texto) {
+  const campo = document.getElementById(id + "Footer");
+
+  if (campo) {
+    campo.innerHTML = texto;
+  }
+}
+
+// ======================================================
+
+export function atualizarLoja(aberta) {
+  const valor = document.getElementById("cardLojaValor");
+
+  const footer = document.getElementById("cardLojaFooter");
+
+  if (!valor) return;
+
+  if (aberta) {
+    valor.innerHTML = "ABERTA";
+
+    valor.style.color = "#27ae60";
+
+    footer.innerHTML = "Recebendo pedidos";
+  } else {
+    valor.innerHTML = "FECHADA";
+
+    valor.style.color = "#e74c3c";
+
+    footer.innerHTML = "Loja indisponível";
+  }
+}
+
+// ======================================================
+
+export function atualizarFaturamento(valor) {
+  atualizarCard(
+    "cardFaturamento",
+
+    Number(valor).toLocaleString(
+      "pt-BR",
+
+      {
+        style: "currency",
+
+        currency: "BRL",
+      },
+    ),
+  );
+}
+
+// ======================================================
+
+export function atualizarPedidos(
+  finalizados,
+
+  preparo,
+
+  prontos,
+
+  entregues,
+) {
+  atualizarCard("cardFinalizados", finalizados);
+
+  atualizarCard("cardPreparo", preparo);
+
+  atualizarCard("cardProntos", prontos);
+
+  atualizarCard("cardEntregues", entregues);
+}
