@@ -1,5 +1,4 @@
 import { db } from "./firebase.js";
-
 import {
   collection,
   doc,
@@ -7,89 +6,58 @@ import {
 
 import { getEmpresaId } from "./tenant.js";
 
-/* ==========================================================
-   ORDERLY
-   FIRESTORE PATHS
-========================================================== */
+console.log("Empresa:", getEmpresaId());
 
-/**
- * Retorna a referência do documento da empresa.
- *
- * empresas/{empresaId}
- */
-export function empresaRef() {
-  return doc(db, "empresas", getEmpresaId());
-}
-
-/**
- * Retorna a referência de uma subcoleção da empresa.
- *
- * empresas/{empresaId}/{colecao}
- */
-function empresaCollection(nomeColecao) {
-  return collection(db, "empresas", getEmpresaId(), nomeColecao);
-}
+const empresaId = () => getEmpresaId();
 
 /* ==========================================================
-   SUBCOLEÇÕES
+   EMPRESA
 ========================================================== */
 
-export function produtosRef() {
-  return empresaCollection("produtos");
-}
+export const empresaRef = () =>
+  doc(db, "empresas", empresaId());
 
-export function pedidosRef() {
-  return empresaCollection("pedidos");
-}
+/* ==========================================================
+   COLEÇÕES
+========================================================== */
 
-export function clientesRef() {
-  return empresaCollection("clientes");
-}
+const collectionRef = (nome) => {
+  const ref = collection(db, "empresas", empresaId(), nome);
+  console.log("Coleção:", ref.path);
+  return ref;
+};
 
-export function categoriasRef() {
-  return empresaCollection("categorias");
-}
+export const produtosRef = () => collectionRef("produtos");
+export const pedidosRef = () => collectionRef("pedidos");
+export const clientesRef = () => collectionRef("clientes");
+export const categoriasRef = () => collectionRef("categorias");
+export const mesasRef = () => collectionRef("mesas");
+export const usuariosRef = () => collectionRef("usuarios");
+export const configuracoesRef = () => collectionRef("configuracoes");
+export const pagamentosRef = () => collectionRef("pagamentos");
+export const taxasEntregaRef = () => collectionRef("taxasEntrega");
+export const promocoesRef = () => collectionRef("promocoes");
+export const integracoesRef = () => collectionRef("integracoes");
+export const adicionaisRef = () => collectionRef("adicionais");
 
-export function usuariosRef() {
-  return empresaCollection("usuarios");
-}
+/* ==========================================================
+   DOCUMENTOS
+========================================================== */
 
-export function configuracoesRef() {
-  return empresaCollection("configuracoes");
-}
+export const configuracaoGeralRef = () =>
+  doc(configuracoesRef(), "geral");
 
-export function pagamentosRef() {
-  return empresaCollection("pagamentos");
-}
+export const configuracaoEntregaRef = () =>
+  doc(configuracoesRef(), "entrega");
 
-export function taxasEntregaRef() {
-  return empresaCollection("taxasEntrega");
-}
+export const configuracaoWhatsappRef = () =>
+  doc(configuracoesRef(), "whatsapp");
 
-export function promocoesRef() {
-  return empresaCollection("promocoes");
-}
+export const configuracaoImpressaoRef = () =>
+  doc(configuracoesRef(), "impressao");
 
-export function integracoesRef() {
-  return empresaCollection("integracoes");
-}
+export const beeDeliveryRef = () =>
+  doc(integracoesRef(), "beeDelivery");
 
-export function relatoriosRef() {
-  return empresaCollection("relatorios");
-}
-
-export function mesasRef() {
-  return empresaCollection("mesas");
-}
-
-export function cuponsRef() {
-  return empresaCollection("cupons");
-}
-
-export function entregadoresRef() {
-  return empresaCollection("entregadores");
-}
-
-export function notificacoesRef() {
-  return empresaCollection("notificacoes");
-}
+export const adminRef = () =>
+  doc(usuariosRef(), "admin");

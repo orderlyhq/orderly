@@ -1,9 +1,11 @@
 import {
   collection,
-  getDocs
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import { db } from "../services/firebase.js";
+
+import { produtosRef } from "../services/firestore-paths.js";
 
 /* ==========================================================
    MESA FÁCIL
@@ -44,15 +46,16 @@ export async function carregarMaisPedidos() {
   if (!container) return;
 
   try {
-    const produtosRef = collection(db, "produtos");
-    const snapshot = await getDocs(produtosRef);
+    const snapshot = await getDocs(produtosRef());
+
+    console.log("Consulta produtos mais vendidos:", produtosRef().path);
 
     const produtos = [];
 
     snapshot.forEach((docItem) => {
       const produto = {
         id: docItem.id,
-        ...docItem.data()
+        ...docItem.data(),
       };
 
       // ignora produtos inativos
@@ -61,7 +64,7 @@ export async function carregarMaisPedidos() {
       produtos.push({
         ...produto,
         vendas: Number(produto.vendas || 0),
-        preco: Number(produto.preco || 0)
+        preco: Number(produto.preco || 0),
       });
     });
 
@@ -74,13 +77,13 @@ export async function carregarMaisPedidos() {
       return;
     }
 
-    const maisPedidos = produtos
-      .sort(ordenarMaisPedidos)
-      .slice(0, 3);
+    const maisPedidos = produtos.sort(ordenarMaisPedidos).slice(0, 3);
 
     container.innerHTML = `
       <div class="row g-3 mt-2">
-        ${maisPedidos.map((produto) => `
+        ${maisPedidos
+          .map(
+            (produto) => `
           <div class="col-12">
             <div class="product-card">
               <div class="card-body">
@@ -108,7 +111,9 @@ export async function carregarMaisPedidos() {
               </div>
             </div>
           </div>
-        `).join("")}
+        `,
+          )
+          .join("")}
       </div>
     `;
   } catch (error) {

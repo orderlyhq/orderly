@@ -1,80 +1,57 @@
-import { db } from "./firebase.js";
+import { clientesRef } from "./firestore-paths.js";
 
 import {
-    collection,
-    addDoc,
-    updateDoc,
-    deleteDoc,
-    getDoc,
-    doc,
-    query,
-    orderBy,
-    onSnapshot,
-    serverTimestamp
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDoc,
+  doc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* ==========================================================
-   MESA FÁCIL
-   CLIENTS SERVICE
-========================================================== */
-
-const clientesRef = collection(db, "clientes");
 
 /* ==========================================================
    CRIAR CLIENTE
 ========================================================== */
 
 export async function criarCliente(dados) {
+  try {
+    const cliente = {
+      nome: dados.nome || "",
 
-    try {
+      telefone: dados.telefone || "",
 
-        const cliente = {
+      email: dados.email || "",
 
-            nome: dados.nome || "",
+      observacoes: dados.observacoes || "",
 
-            telefone: dados.telefone || "",
+      endereco: {
+        rua: dados.endereco?.rua || "",
 
-            email: dados.email || "",
+        numero: dados.endereco?.numero || "",
 
-            observacoes: dados.observacoes || "",
+        bairro: dados.endereco?.bairro || "",
 
+        complemento: dados.endereco?.complemento || "",
+      },
 
-            endereco: {
+      totalPedidos: Number(dados.totalPedidos || 0),
 
-                rua: dados.endereco?.rua || "",
+      totalGasto: Number(dados.totalGasto || 0),
 
-                numero: dados.endereco?.numero || "",
+      createdAt: serverTimestamp(),
 
-                bairro: dados.endereco?.bairro || "",
+      updatedAt: serverTimestamp(),
+    };
 
-                complemento: dados.endereco?.complemento || ""
+    return await addDoc(clientesRef, cliente);
+  } catch (erro) {
+    console.error("Erro ao criar cliente:", erro);
 
-            },
-
-
-            totalPedidos: Number(dados.totalPedidos || 0),
-
-            totalGasto: Number(dados.totalGasto || 0),
-
-
-            createdAt: serverTimestamp(),
-
-            updatedAt: serverTimestamp()
-
-        };
-
-
-        return await addDoc(clientesRef, cliente);
-
-
-    } catch (erro) {
-
-        console.error("Erro ao criar cliente:", erro);
-
-        throw erro;
-
-    }
-
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -82,24 +59,15 @@ export async function criarCliente(dados) {
 ========================================================== */
 
 export async function editarCliente(id, dados) {
-
-    try {
-
-        await updateDoc(
-            doc(db, "clientes", id),
-            {
-                ...dados,
-                updatedAt: serverTimestamp()
-            }
-        );
-
-    } catch (erro) {
-
-        console.error("Erro ao editar cliente:", erro);
-        throw erro;
-
-    }
-
+  try {
+    await updateDoc(doc(clientesRef(), id), {
+      ...dados,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (erro) {
+    console.error("Erro ao editar cliente:", erro);
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -107,20 +75,12 @@ export async function editarCliente(id, dados) {
 ========================================================== */
 
 export async function excluirCliente(id) {
-
-    try {
-
-        await deleteDoc(
-            doc(db, "clientes", id)
-        );
-
-    } catch (erro) {
-
-        console.error("Erro ao excluir cliente:", erro);
-        throw erro;
-
-    }
-
+  try {
+    await deleteDoc(doc(clientesRef(), id));
+  } catch (erro) {
+    console.error("Erro ao excluir cliente:", erro);
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -128,29 +88,21 @@ export async function excluirCliente(id) {
 ========================================================== */
 
 export async function buscarCliente(id) {
+  try {
+    const cliente = await getDoc(doc(clientesRef(), id));
 
-    try {
-
-        const cliente = await getDoc(
-            doc(db, "clientes", id)
-        );
-
-        if (!cliente.exists()) {
-            return null;
-        }
-
-        return {
-            id: cliente.id,
-            ...cliente.data()
-        };
-
-    } catch (erro) {
-
-        console.error("Erro ao buscar cliente:", erro);
-        throw erro;
-
+    if (!cliente.exists()) {
+      return null;
     }
 
+    return {
+      id: cliente.id,
+      ...cliente.data(),
+    };
+  } catch (erro) {
+    console.error("Erro ao buscar cliente:", erro);
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -158,28 +110,26 @@ export async function buscarCliente(id) {
 ========================================================== */
 
 export function ouvirClientes(callback) {
+  const q = query(clientesRef(), orderBy("nome", "asc"));
 
-    return onSnapshot(clientesRef, (snapshot) => {
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const clientes = [];
 
-        const clientes = [];
+      snapshot.forEach((docItem) => {
+        console.log(docItem.id, docItem.data());
 
-        snapshot.forEach((docItem) => {
-
-            console.log(docItem.id, docItem.data());
-
-            clientes.push({
-                id: docItem.id,
-                ...docItem.data()
-            });
-
+        clientes.push({
+          id: docItem.id,
+          ...docItem.data(),
         });
+      });
 
-        callback(clientes);
-
-    }, (erro) => {
-
-        console.error("Erro ao ouvir clientes:", erro);
-
-    });
-
+      callback(clientes);
+    },
+    (erro) => {
+      console.error("Erro ao ouvir clientes:", erro);
+    },
+  );
 }

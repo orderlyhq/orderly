@@ -1,4 +1,6 @@
-import { db } from "./firebase.js";
+import {
+  adicionaisRef,
+} from "./firestore-paths.js";
 import {
   collection,
   getDocs,
@@ -13,7 +15,7 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const adicionaisRef = collection(db, "adicionais");
+const adicionaisCollection = adicionaisRef();
 
 function normalizarAdicional(docItem) {
   const data = docItem.data();
@@ -29,7 +31,7 @@ function normalizarAdicional(docItem) {
 }
 
 export async function listarAdicionais() {
-  const q = query(adicionaisRef, orderBy("nome", "asc"));
+  const q = query(adicionaisCollection, orderBy("nome", "asc"));
 
   const snap = await getDocs(q);
 
@@ -41,7 +43,7 @@ export async function listarAdicionais() {
 export async function buscarAdicional(id) {
   if (!id) return null;
 
-  const snap = await getDoc(doc(db, "adicionais", id));
+  const snap = await getDoc(doc(adicionaisRef(), id));
   if (!snap.exists()) return null;
 
   const data = snap.data();
@@ -57,7 +59,7 @@ export async function buscarAdicional(id) {
 }
 
 export async function criarAdicional(dados) {
-  return addDoc(adicionaisRef, {
+  return addDoc(adicionaisCollection, {
     nome: String(dados.nome || "").trim(),
     preco: Number(dados.preco || 0),
     ativo: dados.ativo ?? true,
@@ -67,7 +69,7 @@ export async function criarAdicional(dados) {
 }
 
 export async function editarAdicional(id, dados) {
-  await updateDoc(doc(db, "adicionais", id), {
+  await updateDoc(doc(adicionaisRef(), id), {
     nome: String(dados.nome || "").trim(),
     preco: Number(dados.preco || 0),
     ativo: dados.ativo ?? true,
@@ -76,11 +78,11 @@ export async function editarAdicional(id, dados) {
 }
 
 export async function excluirAdicional(id) {
-  await deleteDoc(doc(db, "adicionais", id));
+  await deleteDoc(doc(adicionaisRef(), id));
 }
 
 export function ouvirAdicionais(callback) {
-  const q = query(adicionaisRef, orderBy("nome", "asc"));
+  const q = query(adicionaisCollection, orderBy("nome", "asc"));
 
   return onSnapshot(q, (snapshot) => {
     const lista = snapshot.docs.map(normalizarAdicional);

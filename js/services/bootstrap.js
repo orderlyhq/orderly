@@ -1,4 +1,9 @@
-import { db } from "./firebase.js";
+import {
+  empresaRef,
+  configuracoesRef,
+  usuariosRef,
+  categoriasRef,
+} from "./firestore-paths.js";
 
 import {
   doc,
@@ -7,19 +12,16 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { getEmpresaId } from "./tenant.js";
-
 /* ==========================================================
    ORDERLY
    BOOTSTRAP
 ========================================================== */
 
-export async function inicializarEmpresaDemo() {
-  const empresaId = getEmpresaId();
+export async function bootstrapEmpresa() {
 
-  const empresaRef = doc(db, "empresas", empresaId);
+  const refEmpresa = empresaRef();
 
-  const empresaSnap = await getDoc(empresaRef);
+  const empresaSnap = await getDoc(refEmpresa);
 
   if (empresaSnap.exists()) {
     console.log("Empresa já inicializada.");
@@ -34,7 +36,7 @@ export async function inicializarEmpresaDemo() {
      EMPRESA
   ====================================================== */
 
-  await setDoc(empresaRef, {
+  await setDoc(refEmpresa, {
     nomeFantasia: "Empresa Demo",
     plano: "free",
     ativo: true,
@@ -46,63 +48,57 @@ export async function inicializarEmpresaDemo() {
      CONFIGURAÇÕES
   ====================================================== */
 
-  await setDoc(
-    doc(db, "empresas", empresaId, "configuracoes", "geral"),
-    {
-      nomeFantasia: "Empresa Demo",
-      telefone: "",
-      whatsapp: "",
-      email: "",
-      endereco: {
-        rua: "",
-        numero: "",
-        bairro: "",
-        cidade: "",
-        uf: "",
-        cep: "",
-      },
-      pix: {
-        chave: "",
-        tipo: "",
-      },
-      logo: "",
-      corPrimaria: "#198754",
-      moeda: "BRL",
-      timezone: "America/Sao_Paulo",
-      pagamentos: [
-        {
-          nome: "Dinheiro",
-          ativo: true,
-        },
-        {
-          nome: "PIX",
-          ativo: true,
-        },
-        {
-          nome: "Cartão",
-          ativo: true,
-        },
-      ],
-      criadoEm: agora,
-      atualizadoEm: agora,
+  await setDoc(doc(configuracoesRef(), "geral"), {
+    nomeFantasia: "Empresa Demo",
+    telefone: "",
+    whatsapp: "",
+    email: "",
+    endereco: {
+      rua: "",
+      numero: "",
+      bairro: "",
+      cidade: "",
+      uf: "",
+      cep: "",
     },
-  );
+    pix: {
+      chave: "",
+      tipo: "",
+    },
+    logo: "",
+    corPrimaria: "#198754",
+    moeda: "BRL",
+    timezone: "America/Sao_Paulo",
+    pagamentos: [
+      {
+        nome: "Dinheiro",
+        ativo: true,
+      },
+      {
+        nome: "PIX",
+        ativo: true,
+      },
+      {
+        nome: "Cartão",
+        ativo: true,
+      },
+    ],
+    criadoEm: agora,
+    atualizadoEm: agora,
+  });
 
   /* ======================================================
      USUÁRIO ADMIN
   ====================================================== */
 
-  await setDoc(
-    doc(db, "empresas", empresaId, "usuarios", "admin"),
-    {
-      nome: "Administrador",
-      email: "admin@empresa.demo",
-      perfil: "ADMIN",
-      ativo: true,
-      criadoEm: agora,
-      atualizadoEm: agora,
-    },
-  );
+  await setDoc(doc(usuariosRef(), "admin"), {
+    nome: "Administrador",
+    email: "admin@empresa.demo",
+    perfil: "ADMIN",
+    ativo: true,
+    criadoEm: agora,
+    atualizadoEm: agora,
+  });
 
   /* ======================================================
      CATEGORIAS PADRÃO
@@ -123,60 +119,48 @@ export async function inicializarEmpresaDemo() {
       .replace(/\s+/g, "-")
       .toLowerCase();
 
-    await setDoc(
-      doc(db, "empresas", empresaId, "categorias", id),
-      {
-        nome: categoria,
-        ativo: true,
-        ordem: categorias.indexOf(categoria) + 1,
-        criadoEm: agora,
-        atualizadoEm: agora,
-      },
-    );
+    await setDoc(doc(categoriasRef(), id), {
+      nome: categoria,
+      ativo: true,
+      ordem: categorias.indexOf(categoria) + 1,
+      criadoEm: agora,
+      atualizadoEm: agora,
+    });
   }
 
   /* ======================================================
      CONFIGURAÇÕES DE ENTREGA
   ====================================================== */
 
-  await setDoc(
-    doc(db, "empresas", empresaId, "configuracoes", "entrega"),
-    {
-      entregaAtiva: true,
-      retiradaAtiva: true,
-      pedidoMinimo: 0,
-      tempoMedio: 45,
-      atualizadoEm: agora,
-    },
-  );
+  await setDoc(doc(configuracoesRef(), "entrega"), {
+    entregaAtiva: true,
+    retiradaAtiva: true,
+    pedidoMinimo: 0,
+    tempoMedio: 45,
+    atualizadoEm: agora,
+  });
 
   /* ======================================================
      CONFIGURAÇÕES DE WHATSAPP
   ====================================================== */
 
-  await setDoc(
-    doc(db, "empresas", empresaId, "configuracoes", "whatsapp"),
-    {
-      ativo: false,
-      numero: "",
-      mensagemBoasVindas: "",
-      atualizadoEm: agora,
-    },
-  );
+  await setDoc(doc(configuracoesRef(), "whatsapp"), {
+    ativo: false,
+    numero: "",
+    mensagemBoasVindas: "",
+    atualizadoEm: agora,
+  });
 
   /* ======================================================
      CONFIGURAÇÕES DE IMPRESSÃO
   ====================================================== */
 
-  await setDoc(
-    doc(db, "empresas", empresaId, "configuracoes", "impressao"),
-    {
-      autoPrint: true,
-      imprimirLogo: true,
-      imprimirObservacoes: true,
-      atualizadoEm: agora,
-    },
-  );
+  await setDoc(doc(configuracoesRef(), "impressao"), {
+    autoPrint: true,
+    imprimirLogo: true,
+    imprimirObservacoes: true,
+    atualizadoEm: agora,
+  });
 
   console.log("Estrutura inicial criada com sucesso.");
 }

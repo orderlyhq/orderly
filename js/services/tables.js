@@ -1,54 +1,38 @@
-import { db } from "./firebase.js";
+import { mesasRef } from "./firestore-paths.js";
 
 import {
-    collection,
-    addDoc,
-    updateDoc,
-    deleteDoc,
-    getDoc,
-    doc,
-    query,
-    orderBy,
-    onSnapshot,
-    serverTimestamp
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDoc,
+  doc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* ==========================================================
-   MESA FÁCIL
-   TABLES SERVICE
-========================================================== */
-
-const mesasRef = collection(db, "mesas");
 
 /* ==========================================================
    CRIAR MESA
 ========================================================== */
 
 export async function criarMesa(dados) {
+  try {
+    const mesa = {
+      numero: Number(dados.numero || 0),
+      capacidade: Number(dados.capacidade || 4),
+      status: dados.status || "LIVRE",
+      pessoas: Number(dados.pessoas || 0),
+      observacoes: dados.observacoes || "",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
 
-    try {
-
-        const mesa = {
-
-            numero: Number(dados.numero || 0),
-            capacidade: Number(dados.capacidade || 4),
-            status: dados.status || "LIVRE",
-            pessoas: Number(dados.pessoas || 0),
-            observacoes: dados.observacoes || "",
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-
-        };
-
-        return await addDoc(mesasRef, mesa);
-
-    } catch (erro) {
-
-        console.error("Erro ao criar mesa:", erro);
-        throw erro;
-
-    }
-
+    return await addDoc(mesasRef(), mesa);
+  } catch (erro) {
+    console.error("Erro ao criar mesa:", erro);
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -56,24 +40,15 @@ export async function criarMesa(dados) {
 ========================================================== */
 
 export async function editarMesa(id, dados) {
-
-    try {
-
-        await updateDoc(
-            doc(db, "mesas", id),
-            {
-                ...dados,
-                updatedAt: serverTimestamp()
-            }
-        );
-
-    } catch (erro) {
-
-        console.error("Erro ao editar mesa:", erro);
-        throw erro;
-
-    }
-
+  try {
+    await updateDoc(doc(mesasRef(), id), {
+      ...dados,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (erro) {
+    console.error("Erro ao editar mesa:", erro);
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -81,24 +56,15 @@ export async function editarMesa(id, dados) {
 ========================================================== */
 
 export async function alterarStatusMesa(id, status) {
-
-    try {
-
-        await updateDoc(
-            doc(db, "mesas", id),
-            {
-                status,
-                updatedAt: serverTimestamp()
-            }
-        );
-
-    } catch (erro) {
-
-        console.error("Erro ao alterar status da mesa:", erro);
-        throw erro;
-
-    }
-
+  try {
+    await updateDoc(doc(mesasRef(), id), {
+      status,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (erro) {
+    console.error("Erro ao alterar status da mesa:", erro);
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -106,18 +72,12 @@ export async function alterarStatusMesa(id, status) {
 ========================================================== */
 
 export async function excluirMesa(id) {
-
-    try {
-
-        await deleteDoc(doc(db, "mesas", id));
-
-    } catch (erro) {
-
-        console.error("Erro ao excluir mesa:", erro);
-        throw erro;
-
-    }
-
+  try {
+    await deleteDoc(doc(mesasRef(), id));
+  } catch (erro) {
+    console.error("Erro ao excluir mesa:", erro);
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -125,27 +85,21 @@ export async function excluirMesa(id) {
 ========================================================== */
 
 export async function buscarMesa(id) {
+  try {
+    const mesa = await getDoc(doc(mesasRef(), id));
 
-    try {
-
-        const mesa = await getDoc(doc(db, "mesas", id));
-
-        if (!mesa.exists()) {
-            return null;
-        }
-
-        return {
-            id: mesa.id,
-            ...mesa.data()
-        };
-
-    } catch (erro) {
-
-        console.error("Erro ao buscar mesa:", erro);
-        throw erro;
-
+    if (!mesa.exists()) {
+      return null;
     }
 
+    return {
+      id: mesa.id,
+      ...mesa.data(),
+    };
+  } catch (erro) {
+    console.error("Erro ao buscar mesa:", erro);
+    throw erro;
+  }
 }
 
 /* ==========================================================
@@ -153,33 +107,28 @@ export async function buscarMesa(id) {
 ========================================================== */
 
 export function ouvirMesas(callback) {
+  const q = query(mesasRef(), orderBy("numero", "asc"));
 
-    const q = query(
-        mesasRef,
-        orderBy("numero", "asc")
-    );
+  console.log("Consulta mesas:", mesasRef().path);
 
-    return onSnapshot(
-        q,
-        (snapshot) => {
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const mesas = [];
 
-            const mesas = [];
+      snapshot.forEach((docItem) => {
+        mesas.push({
+          id: docItem.id,
+          ...docItem.data(),
+        });
+      });
 
-            snapshot.forEach((docItem) => {
-                mesas.push({
-                    id: docItem.id,
-                    ...docItem.data()
-                });
-            });
-
-            callback(mesas);
-
-        },
-        (erro) => {
-            console.error("Erro ao ouvir mesas:", erro);
-        }
-    );
-
+      callback(mesas);
+    },
+    (erro) => {
+      console.error("Erro ao ouvir mesas:", erro);
+    },
+  );
 }
 
 /* ==========================================================
@@ -187,14 +136,15 @@ export function ouvirMesas(callback) {
 ========================================================== */
 
 export function contarMesas(mesas) {
-
-    return {
-        total: mesas.length,
-        livres: mesas.filter(m => m.status === "LIVRE").length,
-        ocupadas: mesas.filter(m => m.status === "OCUPADA").length,
-        reservadas: mesas.filter(m => m.status === "RESERVADA").length,
-        manutencao: mesas.filter(m => m.status === "MANUTENCAO").length,
-        pessoas: mesas.reduce((total, mesa) => total + Number(mesa.pessoas || 0), 0)
-    };
-
+  return {
+    total: mesas.length,
+    livres: mesas.filter((m) => m.status === "LIVRE").length,
+    ocupadas: mesas.filter((m) => m.status === "OCUPADA").length,
+    reservadas: mesas.filter((m) => m.status === "RESERVADA").length,
+    manutencao: mesas.filter((m) => m.status === "MANUTENCAO").length,
+    pessoas: mesas.reduce(
+      (total, mesa) => total + Number(mesa.pessoas || 0),
+      0,
+    ),
+  };
 }

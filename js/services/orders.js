@@ -1,9 +1,4 @@
-import {
-  pedidosCollection as getPedidosCollection,
-  pedidosRef,
-  clientesRef,
-  produtosRef,
-} from "./firestore-paths.js";
+import { pedidosRef, clientesRef, produtosRef } from "./firestore-paths.js";
 import { incrementarVendasProdutos } from "./products.js";
 
 import {
@@ -27,7 +22,9 @@ import {
    ORDERS SERVICE
 ========================================================== */
 
-const pedidosCollection = getPedidosCollection();
+function getPedidosCollection() {
+  return pedidosRef();
+}
 
 function getInicioEFimDeHoje() {
   const agora = new Date();
@@ -206,7 +203,7 @@ export async function criarPedido(dados) {
     atualizadoEm: agora,
   };
 
-  const pedidoRef = await addDoc(pedidosCollection, payload);
+  const pedidoRef = await addDoc(pedidosRef(), payload);
 
   await incrementarVendasProdutos(itens);
 
@@ -365,14 +362,13 @@ export function ouvirPedidosPorPeriodo(dataInicio, dataFim, callback) {
   fim.setHours(23, 59, 59, 999);
 
   const q = query(
-    pedidosCollection,
-
+    pedidosRef(),
     where("criadoEm", ">=", Timestamp.fromDate(inicio)),
-
     where("criadoEm", "<=", Timestamp.fromDate(fim)),
-
     orderBy("criadoEm", "desc"),
   );
+
+  console.log("Consulta pedidos:", pedidosRef().path);
 
   return onSnapshot(
     q,
@@ -459,14 +455,13 @@ export async function buscarPedidosPorPeriodo(
   fim.setHours(23, 59, 59, 999);
 
   const q = query(
-    pedidosCollection,
-
+    pedidosRef(),
     where("criadoEm", ">=", Timestamp.fromDate(inicio)),
-
     where("criadoEm", "<=", Timestamp.fromDate(fim)),
-
     orderBy("criadoEm", "desc"),
   );
+
+  console.log("Consulta pedidos:", pedidosRef().path);
 
   const snapshot = await getDocs(q);
 
@@ -499,12 +494,14 @@ export function ouvirPedidosCliente(uid, callback) {
   const { inicioHoje, inicioAmanha } = getInicioEFimDeHoje();
 
   const q = query(
-    pedidosCollection,
+    pedidosRef(),
     where("clienteId", "==", uid),
     where("criadoEm", ">=", inicioHoje),
     where("criadoEm", "<", inicioAmanha),
     orderBy("criadoEm", "desc"),
   );
+
+  console.log("Consulta pedidos do cliente:", pedidosRef().path);
 
   return onSnapshot(
     q,

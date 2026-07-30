@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { integracoesRef } from "./firestore-paths.js";
 
 import {
   doc,
@@ -8,7 +8,7 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const beeRef = doc(db, "integracoes", "beeDelivery");
+const beeRef = doc(integracoesRef(), "beeDelivery");
 
 /*
 ==========================================

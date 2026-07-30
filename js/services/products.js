@@ -1,7 +1,4 @@
-import {
-  produtosCollection as getProdutosCollection,
-  produtosRef,
-} from "./firestore-paths.js";
+import { produtosRef } from "./firestore-paths.js";
 
 import {
   addDoc,
@@ -17,8 +14,6 @@ import {
   increment,
   limit,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const produtosCollection = getProdutosCollection();
 
 /* ==========================================================
    CLOUDINARY
@@ -140,7 +135,7 @@ export async function criarProduto(dados) {
       updatedAt: serverTimestamp(),
     };
 
-    return await addDoc(produtosCollection, produto);
+    return await addDoc(produtosRef(), produto);
   } catch (erro) {
     console.error("Erro ao criar produto:", erro);
     throw erro;
@@ -240,7 +235,9 @@ export async function buscarProduto(id) {
 
 export async function listarProdutos() {
   try {
-    const q = query(produtosCollection, orderBy("nome", "asc"));
+    const q = query(produtosRef(), orderBy("nome", "asc"));
+
+    console.log("Consulta produtos:", produtosRef().path);
     const snap = await getDocs(q);
 
     const produtos = [];
@@ -268,7 +265,9 @@ export async function listarProdutos() {
 ========================================================== */
 
 export function ouvirProdutos(callback) {
-  const q = query(produtosCollection, orderBy("nome", "asc"));
+  const q = query(produtosRef(), orderBy("nome", "asc"));
+
+  console.log("Consulta produtos:", produtosRef().path);
 
   return onSnapshot(
     q,
@@ -323,11 +322,13 @@ export async function incrementarVendasProdutos(itens = []) {
 export async function listarProdutosMaisVendidos(limite = 3) {
   try {
     const q = query(
-      produtosCollection,
+      produtosRef(),
       orderBy("vendas", "desc"),
       orderBy("nome", "asc"),
       limit(limite),
     );
+
+    console.log("Consulta produtos mais vendidos:", produtosRef().path);
 
     const snap = await getDocs(q);
 

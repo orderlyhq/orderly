@@ -13,10 +13,11 @@ import {
   buscarCoordenadasEnderecoCompleto,
 } from "../../../js/services/address-search.js";
 
-import { db } from "../../../js/services/firebase.js";
+import {
+  taxasEntregaRef,
+} from "../../../js/services/firestore-paths.js";
 
 import {
-  collection,
   getDocs,
   addDoc,
   updateDoc,
@@ -83,24 +84,15 @@ let enderecoEntrega = {
 ========================================================== */
 
 function calcularTaxaPorDistancia(distanciaKm) {
-
-  const faixas =
-    configuracoesLoja?.delivery?.configuracaoEntrega?.faixas || [];
-
+  const faixas = configuracoesLoja?.delivery?.configuracaoEntrega?.faixas || [];
 
   for (const faixa of faixas) {
-
     if (distanciaKm <= faixa.limiteKm) {
-
       return faixa.taxa;
-
     }
-
   }
 
-
   return null;
-
 }
 
 /* ==========================================================
@@ -112,7 +104,7 @@ async function buscarBairroPorNome(nome) {
 
   const nomeNormalizado = nome.trim().toLowerCase();
 
-  const ref = collection(db, "taxasEntrega");
+  const ref = taxasEntregaRef();
 
   const snapshot = await getDocs(ref);
 
@@ -147,7 +139,7 @@ async function cadastrarBairroAutomaticamente(nome, taxa, distanciaKm) {
 
     // só aumenta se a nova taxa for maior
     if (Number(taxa) > taxaAtual) {
-      await updateDoc(doc(db, "taxasEntrega", existente.id), {
+      await updateDoc(doc(taxasEntregaRef(), existente.id), {
         taxa: Number(taxa),
         distanciaKm: Number(distanciaKm),
         atualizadoEm: serverTimestamp(),
@@ -160,20 +152,14 @@ async function cadastrarBairroAutomaticamente(nome, taxa, distanciaKm) {
   }
 
   // bairro novo
-  await addDoc(collection(db, "taxasEntrega"), {
+  await addDoc(taxasEntregaRef(), {
     nome: nome.trim(),
-
     taxa: Number(taxa),
     distanciaKm: Number(distanciaKm),
-
     ativo: true,
-
     ordem: Date.now(),
-
     ruas: [],
-
     criadoEm: serverTimestamp(),
-
     atualizadoEm: serverTimestamp(),
   });
 
@@ -338,7 +324,6 @@ function fecharSugestoes() {
 ========================================================== */
 
 async function calcularTaxaEntrega() {
-
   const coordenadas = await buscarCoordenadasEnderecoCompleto({
     rua: enderecoEntrega.rua,
     numero: enderecoEntrega.numero || "S/N",
@@ -347,54 +332,37 @@ async function calcularTaxaEntrega() {
     estado: "SP",
   });
 
-
   if (coordenadas) {
-
     enderecoEntrega.latitude = coordenadas.latitude;
 
     enderecoEntrega.longitude = coordenadas.longitude;
-
   }
-
 
   const distancia = await calcularDistanciaBee({
     origem: {
       latitude: -23.000761054962886,
-      longitude: -47.51735362883598
+      longitude: -47.51735362883598,
     },
 
     destino: {
       latitude: enderecoEntrega.latitude,
-      longitude: enderecoEntrega.longitude
-    }
+      longitude: enderecoEntrega.longitude,
+    },
   });
 
-
   const taxa = calcularTaxaPorDistancia(distancia);
-
 
   taxaEntregaAtual = taxa;
 
   enderecoEntrega.distanciaKm = distancia;
 
-
   if (campoDistancia) {
-
-    campoDistancia.textContent =
-      `Distância: ${distancia.toFixed(2)} km • Taxa: R$ ${taxa.toFixed(2)}`;
-
+    campoDistancia.textContent = `Distância: ${distancia.toFixed(2)} km • Taxa: R$ ${taxa.toFixed(2)}`;
   }
-
 
   definirTaxaEntrega(taxa);
 
-
-  await cadastrarBairroAutomaticamente(
-    enderecoEntrega.bairro,
-    taxa,
-    distancia
-  );
-
+  await cadastrarBairroAutomaticamente(enderecoEntrega.bairro, taxa, distancia);
 }
 
 async function buscarCEP() {

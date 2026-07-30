@@ -1,4 +1,7 @@
-import { db } from "./firebase.js";
+import {
+  promocoesRef,
+  produtosRef,
+} from "./firestore-paths.js";
 
 import {
 collection,
@@ -25,10 +28,11 @@ LISTAR ADMIN
 
 export async function listarPromocoes(){
 
-const ref =
-collection(
-db,
-COLLECTION
+const ref = promocoesRef();
+
+console.log(
+    "Consulta promoções:",
+    promocoesRef().path
 );
 
 
@@ -65,10 +69,11 @@ LISTAR CLIENTE
 
 export async function buscarPromocoes(){
 
-const ref =
-collection(
-db,
-COLLECTION
+const ref = promocoesRef();
+
+console.log(
+    "Consulta promoções:",
+    promocoesRef().path
 );
 
 
@@ -112,10 +117,7 @@ export async function criarPromocao(dados){
 
 
 return await addDoc(
-collection(
-db,
-COLLECTION
-),
+promocoesRef(),
 {
 
 ...dados,
@@ -146,8 +148,7 @@ dados
 
 return await updateDoc(
 doc(
-db,
-COLLECTION,
+promocoesRef(),
 id
 ),
 {
@@ -174,10 +175,9 @@ export async function excluirPromocao(id){
 
 return await deleteDoc(
 doc(
-db,
-COLLECTION,
+promocoesRef(),
 id
-)
+),
 
 );
 
@@ -191,10 +191,11 @@ PRODUTOS DISPONÍVEIS
 
 export async function buscarProdutosDisponiveis(){
 
-const ref =
-collection(
-db,
-"produtos"
+const ref = produtosRef();
+
+console.log(
+    "Consulta produtos:",
+    produtosRef().path
 );
 
 

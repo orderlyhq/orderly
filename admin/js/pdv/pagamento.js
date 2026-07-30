@@ -1,504 +1,260 @@
 // admin/js/pdv/pagamento.js
 
+import { toast } from "../../components/toast.js";
 
 import {
-    toast
-} from "../../components/toast.js";
-
-import {
-    doc,
-    getDoc,
+  doc,
+  getDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { db } from "../../../js/services/firebase.js";
-
-
+import { configuracoesRef } from "../../../js/services/firestore-paths.js";
 
 /* ==========================================================
    ELEMENTOS
 ========================================================== */
 
+const formaPagamento = document.getElementById("formaPagamentoPDV");
 
-const formaPagamento =
-    document.getElementById("formaPagamentoPDV");
+const valorRecebido = document.getElementById("valorRecebidoPDV");
 
-
-const valorRecebido =
-    document.getElementById("valorRecebidoPDV");
-
-
-
-const campoTroco =
-    document.getElementById("trocoPDV");
-
-
+const campoTroco = document.getElementById("trocoPDV");
 
 /* ==========================================================
    ESTADO
 ========================================================== */
 
-
 let pagamentoSelecionado = {
+  forma: "",
 
+  valorRecebido: 0,
 
-    forma: "",
-
-
-    valorRecebido: 0,
-
-
-    troco: 0
-
-
-
+  troco: 0,
 };
-
-
 
 /* ==========================================================
    INIT
 ========================================================== */
 
-
 export async function initPagamento() {
+  bindEventos();
 
-    bindEventos();
+  await carregarFormasPagamentoPDV();
 
-    await carregarFormasPagamentoPDV();
-
-    atualizarInterface();
-
+  atualizarInterface();
 }
-
-
 
 /* ==========================================================
    EVENTOS
 ========================================================== */
 
-
 function bindEventos() {
+  formaPagamento?.addEventListener("change", alterarFormaPagamento);
 
-    formaPagamento?.addEventListener(
-        "change",
-        alterarFormaPagamento
-    );
-
-    valorRecebido?.addEventListener(
-        "input",
-        atualizarValorRecebido
-    );
-
+  valorRecebido?.addEventListener("input", atualizarValorRecebido);
 }
 
 function atualizarValorRecebido() {
-
-    pagamentoSelecionado.valorRecebido =
-        Number(valorRecebido?.value || 0);
-
+  pagamentoSelecionado.valorRecebido = Number(valorRecebido?.value || 0);
 }
-
-
 
 /* ==========================================================
    FORMA PAGAMENTO
 ========================================================== */
 
-
 function alterarFormaPagamento() {
-
-
-    selecionarFormaPagamento(
-        formaPagamento.value
-    );
-
-
+  selecionarFormaPagamento(formaPagamento.value);
 }
-
-
 
 export function selecionarFormaPagamento(forma) {
+  forma = String(forma || "").toUpperCase();
 
+  const formasValidas = Array.from(formaPagamento.options).map((option) =>
+    option.value.toUpperCase(),
+  );
 
-    forma = String(forma || "")
-        .toUpperCase();
+  if (!formasValidas.includes(forma)) {
+    toast("Forma de pagamento inválida.");
 
+    return;
+  }
 
-    const formasValidas = Array.from(
-        formaPagamento.options
-    ).map((option) => option.value.toUpperCase());
+  pagamentoSelecionado.forma = forma;
 
-
-    if (
-        !formasValidas.includes(forma)
-    ) {
-
-
-        toast(
-            "Forma de pagamento inválida."
-        );
-
-
-        return;
-
-
-    }
-
-
-    pagamentoSelecionado.forma =
-        forma;
-
-
-    atualizarInterface();
-
-
+  atualizarInterface();
 }
-
-
 
 /* ==========================================================
    VALOR RECEBIDO
 ========================================================== */
 
-
 export function definirValorRecebido(valor) {
-
-
-    pagamentoSelecionado.valorRecebido =
-        Number(valor || 0);
-
-
-
+  pagamentoSelecionado.valorRecebido = Number(valor || 0);
 }
-
-
 
 /* ==========================================================
    TROCO
 ========================================================== */
 
-
 export function calcularTroco(total = 0) {
+  pagamentoSelecionado.troco = Math.max(
+    pagamentoSelecionado.valorRecebido - Number(total || 0),
+    0,
+  );
 
-    pagamentoSelecionado.troco =
-        Math.max(
-            pagamentoSelecionado.valorRecebido - Number(total || 0),
-            0
-        );
+  atualizarTrocoVisual();
 
-    atualizarTrocoVisual();
-
-    return pagamentoSelecionado.troco;
-
+  return pagamentoSelecionado.troco;
 }
-
-
 
 function atualizarTrocoVisual() {
+  if (!campoTroco) return;
 
-
-    if (!campoTroco) return;
-
-
-
-    campoTroco.textContent =
-
-
-        formatarMoeda(
-            pagamentoSelecionado.troco
-        );
-
-
-
+  campoTroco.textContent = formatarMoeda(pagamentoSelecionado.troco);
 }
-
-
 
 /* ==========================================================
    INTERFACE
 ========================================================== */
 
-
 function atualizarInterface() {
+  if (!valorRecebido) return;
 
+  if (pagamentoSelecionado.forma === "DINHEIRO") {
+    valorRecebido.disabled = false;
+  } else {
+    valorRecebido.disabled = true;
 
-    if (!valorRecebido) return;
+    valorRecebido.value = "";
 
+    pagamentoSelecionado.valorRecebido = 0;
 
+    pagamentoSelecionado.troco = 0;
+  }
 
-    if (
-        pagamentoSelecionado.forma ===
-        "DINHEIRO"
-    ) {
-
-
-        valorRecebido.disabled =
-            false;
-
-
-
-    } else {
-
-
-        valorRecebido.disabled =
-            true;
-
-
-
-        valorRecebido.value =
-            "";
-
-
-
-        pagamentoSelecionado.valorRecebido =
-            0;
-
-
-
-        pagamentoSelecionado.troco =
-            0;
-
-
-
-    }
-
-
-
-    atualizarTrocoVisual();
-
-
-
+  atualizarTrocoVisual();
 }
 
 async function carregarFormasPagamentoPDV() {
-    if (!formaPagamento) return;
+  if (!formaPagamento) return;
 
-    try {
-        const snap = await getDoc(
-            doc(db, "configuracoes", "geral")
-        );
+  try {
+    const snap = await getDoc(doc(configuracoesRef(), "geral"));
 
-        if (!snap.exists()) return;
+    if (!snap.exists()) return;
 
-        const configuracao = snap.data();
-        const pagamentos = Array.isArray(configuracao.pagamentos)
-            ? configuracao.pagamentos
-            : [];
+    const configuracao = snap.data();
+    const pagamentos = Array.isArray(configuracao.pagamentos)
+      ? configuracao.pagamentos
+      : [];
 
-        formaPagamento.innerHTML = "";
+    console.log("Formas de pagamento carregadas:", pagamentos);
 
-        pagamentos
-            .filter((pagamento) => pagamento.ativo)
-            .forEach((pagamento) => {
-                const option = document.createElement("option");
+    formaPagamento.innerHTML = "";
 
-                option.value = pagamento.id.toUpperCase();
-                option.textContent = pagamento.nome;
+    pagamentos
+      .filter((pagamento) => pagamento?.ativo)
+      .forEach((pagamento) => {
+        const option = document.createElement("option");
 
-                formaPagamento.appendChild(option);
-            });
+        const id = pagamento.id ?? pagamento.codigo ?? pagamento.nome ?? "";
 
-        if (formaPagamento.options.length > 0) {
-            selecionarFormaPagamento(
-                formaPagamento.options[0].value
-            );
-        }
-    } catch (erro) {
-        console.error(
-            "Erro ao carregar formas de pagamento:",
-            erro
-        );
+        option.value = String(id).toUpperCase();
+        option.textContent =
+          pagamento.nome || pagamento.id || "Forma de pagamento";
+
+        formaPagamento.appendChild(option);
+      });
+
+    if (formaPagamento.options.length > 0) {
+      selecionarFormaPagamento(formaPagamento.options[0].value);
     }
+  } catch (erro) {
+    console.error("Erro ao carregar formas de pagamento:", erro);
+  }
 }
-
-
 
 /* ==========================================================
    VALIDAÇÃO
 ========================================================== */
 
-
 export function validarPagamento(total = 0) {
+  if (!pagamentoSelecionado.forma) {
+    toast("Selecione uma forma de pagamento.");
 
+    return false;
+  }
 
-    if (
-        !pagamentoSelecionado.forma
-    ) {
+  if (pagamentoSelecionado.forma === "DINHEIRO") {
+    if (pagamentoSelecionado.valorRecebido < Number(total || 0)) {
+      toast("Valor recebido insuficiente.");
 
-
-        toast(
-            "Selecione uma forma de pagamento."
-        );
-
-
-        return false;
-
-
+      return false;
     }
+  }
 
-
-
-    if (
-        pagamentoSelecionado.forma ===
-        "DINHEIRO"
-    ) {
-
-
-        if (
-            pagamentoSelecionado.valorRecebido
-            <
-            Number(total || 0)
-        ) {
-
-
-            toast(
-                "Valor recebido insuficiente."
-            );
-
-
-            return false;
-
-
-        }
-
-
-    }
-
-
-
-    return true;
-
-
-
+  return true;
 }
-
-
 
 /* ==========================================================
    GETTERS
 ========================================================== */
 
-
 export function getPagamento() {
-
-
-    return {
-
-
-        ...pagamentoSelecionado
-
-
-    };
-
-
+  return {
+    ...pagamentoSelecionado,
+  };
 }
-
-
 
 export function getFormaPagamento() {
-
-
-    return pagamentoSelecionado.forma;
-
-
+  return pagamentoSelecionado.forma;
 }
-
-
 
 export function getValorRecebido() {
-
-
-    return pagamentoSelecionado.valorRecebido;
-
-
+  return pagamentoSelecionado.valorRecebido;
 }
-
-
 
 export function getTroco() {
-
-
-    return pagamentoSelecionado.troco;
-
-
+  return pagamentoSelecionado.troco;
 }
-
-
 
 /* ==========================================================
    RESET
 ========================================================== */
 
-
 export function limparPagamento() {
+  pagamentoSelecionado = {
+    forma: "",
 
+    valorRecebido: 0,
 
-    pagamentoSelecionado = {
+    troco: 0,
+  };
 
+  if (formaPagamento && formaPagamento.options.length) {
+    formaPagamento.selectedIndex = 0;
 
-        forma: "",
+    pagamentoSelecionado.forma = formaPagamento.value.toUpperCase();
+  }
 
+  if (valorRecebido) {
+    valorRecebido.value = "";
+  }
 
-        valorRecebido: 0,
-
-
-        troco: 0
-
-
-    };
-
-
-
-    if (formaPagamento && formaPagamento.options.length) {
-        formaPagamento.selectedIndex = 0;
-
-        pagamentoSelecionado.forma =
-            formaPagamento.value.toUpperCase();
-    }
-
-
-
-    if (valorRecebido) {
-
-
-        valorRecebido.value =
-            "";
-
-
-    }
-
-
-
-    atualizarInterface();
-
-
-
+  atualizarInterface();
 }
-
-
 
 /* ==========================================================
    HELPERS
 ========================================================== */
 
-
 function formatarMoeda(valor = 0) {
+  return Number(valor).toLocaleString(
+    "pt-BR",
 
+    {
+      style: "currency",
 
-    return Number(valor)
-        .toLocaleString(
-
-            "pt-BR",
-
-            {
-
-                style: "currency",
-
-                currency: "BRL"
-
-            }
-
-        );
-
-
+      currency: "BRL",
+    },
+  );
 }

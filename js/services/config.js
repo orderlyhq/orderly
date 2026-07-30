@@ -1,70 +1,33 @@
-import { db } from "./firebase.js";
+import { configuracaoGeralRef } from "./firestore-paths.js";
 
 import {
-    doc,
-    getDoc,
-    onSnapshot
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-const COLLECTION_NAME = "configuracoes";
-const DOC_ID = "geral";
-
+  getDoc,
+  onSnapshot,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 export async function buscarConfiguracoes() {
+  const snap = await getDoc(configuracaoGeralRef());
 
-  const ref = doc(
-    db,
-    COLLECTION_NAME,
-    DOC_ID
-  );
-
-  const snap = await getDoc(ref);
-
-
-  if (!snap.exists()) {
-    return null;
-  }
-
+  if (!snap.exists()) return null;
 
   return {
     id: snap.id,
-    ...snap.data()
+    ...snap.data(),
   };
 }
 
-export function ouvirConfiguracoes(callback){
+export function ouvirConfiguracoes(callback) {
+  console.log("Listener configurações:", configuracaoGeralRef().path);
 
-    const ref =
-    doc(
-        db,
-        COLLECTION_NAME,
-        DOC_ID
-    );
+  return onSnapshot(configuracaoGeralRef(), (snap) => {
+    if (!snap.exists()) {
+      callback(null);
+      return;
+    }
 
-
-    return onSnapshot(
-        ref,
-        snap=>{
-
-            if(!snap.exists()){
-
-                callback(null);
-                return;
-
-            }
-
-
-            callback({
-
-                id:snap.id,
-
-                ...snap.data()
-
-            });
-
-        }
-    );
-
+    callback({
+      id: snap.id,
+      ...snap.data(),
+    });
+  });
 }

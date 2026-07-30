@@ -1,4 +1,4 @@
-import { db } from "../services/firebase.js";
+import { configuracoesRef } from "../services/firestore-paths.js";
 import { bootstrapEmpresa } from "../services/bootstrap.js";
 import {
   doc,
@@ -19,7 +19,6 @@ import { isStoreOpen } from "../services/store-hours.js";
    CONFIG
 ========================================================== */
 
-const CONFIG_COLLECTION = "configuracoes";
 const CONFIG_DOC_ID = "geral";
 
 /* ==========================================================
@@ -146,7 +145,7 @@ function atualizarInterfaceLoja(config = {}) {
 
 async function carregarConfiguracoesLoja() {
   try {
-    const ref = doc(db, CONFIG_COLLECTION, CONFIG_DOC_ID);
+    const ref = doc(configuracoesRef(), CONFIG_DOC_ID);
     const snap = await getDoc(ref);
 
     if (!snap.exists()) {

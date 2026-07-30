@@ -1,4 +1,4 @@
-import { db } from "../../js/services/firebase.js";
+import { configuracoesRef } from "../../js/services/firestore-paths.js";
 import {
   doc,
   getDoc,
@@ -155,7 +155,7 @@ function preencherFormulario(el, dados = {}) {
 
 async function carregarConfiguracoes(el) {
   try {
-    const ref = doc(db, COLLECTION_NAME, DOC_ID);
+    const ref = doc(configuracoesRef(), DOC_ID);
     const snap = await getDoc(ref);
 
     if (snap.exists()) {
@@ -171,7 +171,7 @@ async function carregarConfiguracoes(el) {
 
 async function salvarConfiguracoes(el) {
   const dados = coletarDados(el);
-  const ref = doc(db, COLLECTION_NAME, DOC_ID);
+  const ref = doc(configuracoesRef(), DOC_ID);
 
   await setDoc(ref, dados, { merge: true });
 }

@@ -191,6 +191,8 @@ function sincronizarCardsPedidos(pedidos){
 
 
 
+console.log("Dashboard iniciando listener de pedidos...");
+
 ouvirPedidos(pedidos=>{
 
 
@@ -263,6 +265,8 @@ ouvirPedidos(pedidos=>{
 // ======================================================
 // STATUS DA LOJA
 // ======================================================
+
+console.log("Dashboard iniciando listener de configurações...");
 
 ouvirConfiguracoes(config=>{
 

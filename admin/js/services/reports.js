@@ -1,59 +1,57 @@
 import { db } from "../../../js/services/firebase.js";
 
 import {
-    collection,
-    getDocs
+  collection,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import {
+  pedidosRef,
+  clientesRef,
+  produtosRef,
+} from "../../../js/services/firestore-paths.js";
 
-export async function carregarDadosRelatorios(){
+export async function carregarDadosRelatorios() {
+  const pedidosSnap = await getDocs(pedidosRef());
 
-    const pedidosSnap =
-        await getDocs(collection(db,"pedidos"));
+  console.log("Consulta pedidos:", pedidosRef().path);
 
+  const clientesSnap = await getDocs(clientesRef());
 
-    const clientesSnap =
-        await getDocs(collection(db,"clientes"));
+  console.log("Consulta clientes:", clientesRef().path);
 
+  const produtosSnap = await getDocs(produtosRef());
 
-    const produtosSnap =
-        await getDocs(collection(db,"produtos"));
+  console.log("Consulta produtos:", produtosRef().path);
 
+  const pedidos = [];
+  const clientes = [];
+  const produtos = [];
 
-    const pedidos=[];
-    const clientes=[];
-    const produtos=[];
-
-
-    pedidosSnap.forEach(doc=>{
-        pedidos.push({
-            id:doc.id,
-            ...doc.data()
-        });
+  pedidosSnap.forEach((doc) => {
+    pedidos.push({
+      id: doc.id,
+      ...doc.data(),
     });
+  });
 
-
-    clientesSnap.forEach(doc=>{
-        clientes.push({
-            id:doc.id,
-            ...doc.data()
-        });
+  clientesSnap.forEach((doc) => {
+    clientes.push({
+      id: doc.id,
+      ...doc.data(),
     });
+  });
 
-
-    produtosSnap.forEach(doc=>{
-        produtos.push({
-            id:doc.id,
-            ...doc.data()
-        });
+  produtosSnap.forEach((doc) => {
+    produtos.push({
+      id: doc.id,
+      ...doc.data(),
     });
+  });
 
-
-
-    return {
-        pedidos,
-        clientes,
-        produtos
-    };
-
+  return {
+    pedidos,
+    clientes,
+    produtos,
+  };
 }

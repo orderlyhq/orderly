@@ -1,6 +1,5 @@
 import {
-    taxasEntregaCollection as getTaxasEntregaCollection,
-    taxasEntregaRef
+  taxasEntregaRef
 } from "./firestore-paths.js";
 
 import {
@@ -19,7 +18,7 @@ import {
    DELIVERY FEES SERVICE
 ========================================================== */
 
-const taxasEntregaCollection = getTaxasEntregaCollection();
+const taxasEntregaCollection = taxasEntregaRef();
 
 /* ==========================================================
    HELPERS

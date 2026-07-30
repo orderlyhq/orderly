@@ -105,3 +105,33 @@ body {
   background: var(--primary-dark);
   transform: translateY(-1px);
 }
+
+.cadastro-link {
+
+text-align:center;
+
+margin-top:20px;
+
+font-size:14px;
+
+color:var(--muted);
+
+}
+
+
+.cadastro-link a {
+
+color:var(--primary);
+
+font-weight:700;
+
+text-decoration:none;
+
+}
+
+
+.cadastro-link a:hover {
+
+text-decoration:underline;
+
+}

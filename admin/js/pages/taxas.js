@@ -1,4 +1,4 @@
-import { db } from "../../../js/services/firebase.js";
+import { configuracoesRef } from "../../../js/services/firestore-paths.js";
 
 import {
   doc,
@@ -6,7 +6,7 @@ import {
   setDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const REF = doc(db, "configuracoes", "geral");
+const REF = doc(configuracoesRef(), "geral");
 
 const lista = document.getElementById("listaDistancias");
 
