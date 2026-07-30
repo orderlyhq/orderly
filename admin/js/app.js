@@ -2,24 +2,46 @@ import { carregarSidebar } from "../components/sidebar.js";
 import { carregarHeader } from "../components/header.js";
 import { protegerPaginaAdmin } from "../../js/services/auth.js";
 import { bootstrapEmpresa } from "../../js/services/bootstrap.js";
-import "./notificadorPedidos.js";
 
-/* ==========================================================
-   MESA FÁCIL
-   ADMIN APP
-========================================================== */
+import {
+  carregarEmpresaAtual
+} from "../../js/services/tenant.js";
+
+
 
 async function iniciarAdmin() {
-  const autorizado = protegerPaginaAdmin();
 
-  if (!autorizado) {
-    return;
-  }
 
-  await bootstrapEmpresa();
+const autorizado =
+await protegerPaginaAdmin();
 
-  carregarSidebar();
-  carregarHeader();
+
+
+if (!autorizado) {
+
+return;
+
+}
+
+
+
+await carregarEmpresaAtual();
+
+
+
+await bootstrapEmpresa();
+
+
+
+await import("./notificadorPedidos.js");
+
+
+
+carregarSidebar();
+
+carregarHeader();
+
+
 
   const pagina = window.location.pathname.split("/").pop() || "index.html";
 

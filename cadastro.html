@@ -135,6 +135,128 @@ Criar loja
 
 </div>
 
+<script type="module">
+
+import {
+  cadastrarEmpresa
+} from "./js/services/cadastro-empresa.js";
+
+
+
+const form =
+document.getElementById("cadastroForm");
+
+
+
+form.addEventListener(
+"submit",
+async(e)=>{
+
+
+e.preventDefault();
+
+
+
+const dados = {
+
+
+nomeFantasia:
+document.getElementById("nomeFantasia").value.trim(),
+
+
+razaoSocial:
+document.getElementById("razaoSocial").value.trim(),
+
+
+cnpj:
+document.getElementById("cnpj").value.trim(),
+
+
+telefone:
+document.getElementById("telefone").value.trim(),
+
+
+whatsapp:
+document.getElementById("whatsapp").value.trim(),
+
+
+emailEmpresa:
+document.getElementById("emailEmpresa").value.trim(),
+
+
+endereco:
+document.getElementById("endereco").value.trim(),
+
+
+cidade:
+document.getElementById("cidade").value.trim(),
+
+
+estado:
+document.getElementById("estado").value.trim(),
+
+
+
+nomeAdmin:
+document.getElementById("nomeAdmin").value.trim(),
+
+
+emailAdmin:
+document.getElementById("emailAdmin").value.trim(),
+
+
+senha:
+document.getElementById("senha").value,
+
+
+confirmarSenha:
+document.getElementById("confirmarSenha").value
+
+
+};
+
+
+
+try {
+
+
+await cadastrarEmpresa(dados);
+
+
+
+alert(
+"Loja cadastrada com sucesso!"
+);
+
+
+
+window.location.href =
+"./admin/index.html";
+
+
+
+}
+catch(erro){
+
+
+console.error(
+"Erro cadastro:",
+erro
+);
+
+
+
+alert(
+"Erro ao cadastrar loja."
+);
+
+
+}
+
+
+});
+
+</script>
 
 </body>
 
