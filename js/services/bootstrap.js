@@ -17,7 +17,7 @@ import {
    BOOTSTRAP
 ========================================================== */
 
-export async function bootstrapEmpresa(uid) {
+export async function bootstrapEmpresa() {
 
   const refEmpresa = empresaRef();
 
@@ -83,22 +83,6 @@ export async function bootstrapEmpresa(uid) {
         ativo: true,
       },
     ],
-    criadoEm: agora,
-    atualizadoEm: agora,
-  });
-
-  /* ======================================================
-     USUÁRIO ADMIN
-  ====================================================== */
-
-  await setDoc(doc(
-    usuariosRef(),
-    uid
-  ), {
-    nome: "Administrador",
-    email: "admin@empresa.demo",
-    perfil: "ADMIN",
-    ativo: true,
     criadoEm: agora,
     atualizadoEm: agora,
   });

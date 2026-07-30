@@ -6,7 +6,7 @@ import { bootstrapEmpresa } from "../../js/services/bootstrap.js";
 import {
   carregarEmpresaAtual
 } from "../../js/services/tenant.js";
-
+import { auth } from "../../js/services/firebase.js";
 
 
 async function iniciarAdmin() {
@@ -25,7 +25,19 @@ return;
 
 
 
+console.log(
+"ANTES TENANT",
+auth.currentUser
+);
+
+
 await carregarEmpresaAtual();
+
+
+console.log(
+"DEPOIS TENANT",
+localStorage.getItem("empresaId")
+);
 
 
 

@@ -6,8 +6,6 @@ import {
 
 import { getEmpresaId } from "./tenant.js";
 
-console.log("Empresa:", getEmpresaId());
-
 const empresaId = () => getEmpresaId();
 
 /* ==========================================================
