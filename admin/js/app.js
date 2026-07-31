@@ -30,6 +30,8 @@ console.log(
 auth.currentUser
 );
 
+console.log("UID RAW:", auth.currentUser.uid);
+console.log("UID LENGTH:", auth.currentUser.uid.length);
 
 await carregarEmpresaAtual();
 
@@ -51,7 +53,7 @@ await import("./notificadorPedidos.js");
 
 carregarSidebar();
 
-carregarHeader();
+await carregarHeader();
 
 
 

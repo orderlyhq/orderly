@@ -1,6 +1,4 @@
-import {
-  adicionaisRef,
-} from "./firestore-paths.js";
+import { adicionaisRef } from "./firestore-paths.js";
 import {
   collection,
   getDocs,
@@ -12,10 +10,12 @@ import {
   query,
   orderBy,
   serverTimestamp,
-  onSnapshot
+  onSnapshot,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const adicionaisCollection = adicionaisRef();
+function getAdicionaisCollection() {
+  return adicionaisRef();
+}
 
 function normalizarAdicional(docItem) {
   const data = docItem.data();
@@ -26,12 +26,12 @@ function normalizarAdicional(docItem) {
     preco: Number(data.preco || 0),
     ativo: data.ativo !== false,
     createdAt: data.createdAt || null,
-    updatedAt: data.updatedAt || null
+    updatedAt: data.updatedAt || null,
   };
 }
 
 export async function listarAdicionais() {
-  const q = query(adicionaisCollection, orderBy("nome", "asc"));
+  const q = query(getAdicionaisCollection(), orderBy("nome", "asc"));
 
   const snap = await getDocs(q);
 
@@ -54,17 +54,17 @@ export async function buscarAdicional(id) {
     preco: Number(data.preco || 0),
     ativo: data.ativo !== false,
     createdAt: data.createdAt || null,
-    updatedAt: data.updatedAt || null
+    updatedAt: data.updatedAt || null,
   };
 }
 
 export async function criarAdicional(dados) {
-  return addDoc(adicionaisCollection, {
+  return addDoc(getAdicionaisCollection(), {
     nome: String(dados.nome || "").trim(),
     preco: Number(dados.preco || 0),
     ativo: dados.ativo ?? true,
     createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
+    updatedAt: serverTimestamp(),
   });
 }
 
@@ -73,7 +73,7 @@ export async function editarAdicional(id, dados) {
     nome: String(dados.nome || "").trim(),
     preco: Number(dados.preco || 0),
     ativo: dados.ativo ?? true,
-    updatedAt: serverTimestamp()
+    updatedAt: serverTimestamp(),
   });
 }
 
@@ -82,7 +82,10 @@ export async function excluirAdicional(id) {
 }
 
 export function ouvirAdicionais(callback) {
-  const q = query(adicionaisCollection, orderBy("nome", "asc"));
+  const q = query(
+    getAdicionaisCollection(),
+    orderBy("nome", "asc")
+  );
 
   return onSnapshot(q, (snapshot) => {
     const lista = snapshot.docs.map(normalizarAdicional);

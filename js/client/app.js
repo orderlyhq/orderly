@@ -14,6 +14,7 @@ import { iniciarPedidosCliente } from "./orders-client.js";
 import { iniciarCliente } from "./customer.js";
 import { garantirClienteAuth } from "../services/customers.js";
 import { isStoreOpen } from "../services/store-hours.js";
+import { carregarEmpresaPorSlug } from "../services/tenant.js";
 
 /* ==========================================================
    CONFIG
@@ -54,12 +55,12 @@ function atualizarInterfaceLoja(config = {}) {
   const finalizarBtnMobile = document.getElementById("finalizarBtnMobile");
   const tituloLoja = document.querySelector(".topbar h2");
 
-  const nomeLoja = config?.loja?.nome?.trim() || "Lanches Marini";
+  const nomeLoja = config?.loja?.nome?.trim() || "Orderly";
   const funcionamento = config?.funcionamento || {};
   const aberta = isStoreOpen(funcionamento);
 
   if (tituloLoja) {
-    tituloLoja.textContent = `🍔 ${nomeLoja}`;
+    tituloLoja.textContent = nomeLoja;
   }
 
   if (statusEl) {
@@ -155,6 +156,35 @@ async function carregarConfiguracoesLoja() {
     }
 
     const config = snap.data();
+
+    const logo = config?.loja?.logo || "";
+
+    const nome = config?.loja?.nome || "Orderly";
+
+    const logoEl = document.getElementById("logoLoja");
+
+    if (logoEl) {
+      if (logo) {
+        logoEl.src = logo;
+        logoEl.style.display = "block";
+      } else {
+        logoEl.removeAttribute("src");
+        logoEl.style.display = "none";
+      }
+    }
+
+    const favicon = document.getElementById("favicon");
+
+    if (favicon && logo) {
+      favicon.href = logo;
+    }
+
+    const titulo = document.getElementById("nomeLoja");
+
+    if (titulo) {
+      titulo.textContent = nome;
+    }
+
     atualizarInterfaceLoja(config);
     console.log("Configurações carregadas:", config);
   } catch (error) {
@@ -169,7 +199,7 @@ async function carregarConfiguracoesLoja() {
 
 window.addEventListener("DOMContentLoaded", async () => {
   try {
-    await bootstrapEmpresa();
+    await carregarEmpresaPorSlug();
 
     await garantirClienteAuth();
 

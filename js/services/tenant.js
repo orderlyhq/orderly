@@ -1,90 +1,116 @@
 import { auth, db } from "./firebase.js";
 
 import {
-collectionGroup,
-getDocs,
+doc,
+getDoc,
+collection,
 query,
-where
+where,
+getDocs,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 let empresaAtual = null;
 
 
+export async function carregarEmpresaAtual() {
 
-export async function carregarEmpresaAtual(){
+const usuario = await new Promise(resolve => {
 
+const unsubscribe = auth.onAuthStateChanged(user => {
 
-const usuario =
-auth.currentUser;
+unsubscribe();
 
+resolve(user);
 
+});
+
+});
 
 if(!usuario){
+throw new Error("USUARIO_NAO_AUTENTICADO");
+}
+
+
+console.log(
+  "UID LOGIN RAW:",
+  JSON.stringify(usuario.uid)
+);
+
+console.log(
+  "UID CHARS:",
+  [...usuario.uid].map(c => c.charCodeAt(0))
+);
+
+
+const usuarioRef = doc(
+  db,
+  "usuarios",
+  usuario.uid
+);
+
+const caminho = `usuarios/${usuario.uid}`;
+
+console.log(
+  "CAMINHO RAW:",
+  JSON.stringify(caminho)
+);
+
+const usuarioSnap = await getDoc(usuarioRef);
+
+console.log(
+  "CAMINHO BUSCADO:",
+  usuarioRef.path
+);
+
+console.log(
+  "PROJETO:",
+  db.app.options.projectId
+);
+
+console.log(
+  "DOC:",
+  usuarioSnap.data()
+);
+
+
+console.log(
+"USUARIO RAIZ EXISTE:",
+usuarioSnap.exists()
+);
+
+
+if(!usuarioSnap.exists()){
+
+console.error(
+"Documento não encontrado:",
+usuarioRef.path
+);
+
+return;
+
+}
+
+
+const dados = usuarioSnap.data();
+
+
+console.log(
+"DADOS USUARIO:",
+dados
+);
+
+
+if(!dados.empresaId){
 
 throw new Error(
-"USUARIO_NAO_AUTENTICADO"
+"USUARIO_SEM_EMPRESA"
 );
 
 }
 
 
-
-const uid =
-usuario.uid;
-
-
-
-const usuariosRef =
-collectionGroup(
-db,
-"usuarios"
-);
-
-
-
-const busca =
-query(
-usuariosRef,
-where(
-"uid",
-"==",
-uid
-)
-);
-
-
-
-const resultado =
-await getDocs(busca);
-
-
-
-if(resultado.empty){
-
-throw new Error(
-"USUARIO_NAO_ENCONTRADO"
-);
-
-}
-
-
-
-const usuarioDoc =
-resultado.docs[0];
-
-
-
-/*
- caminho:
-
-empresas/{empresaId}/usuarios/{uid}
-
-*/
-
-empresaAtual =
-usuarioDoc.ref.parent.parent.id;
-
+empresaAtual = dados.empresaId;
 
 
 localStorage.setItem(
@@ -93,30 +119,19 @@ empresaAtual
 );
 
 
-
 console.log(
-"Empresa carregada:",
+"EMPRESA CARREGADA:",
 empresaAtual
 );
 
 
-
 return empresaAtual;
-
 
 }
 
+export function getEmpresaId() {
 
-
-
-
-export function getEmpresaId(){
-
-
-return empresaAtual ||
-localStorage.getItem(
-"empresaId"
-);
-
+return empresaAtual 
+|| localStorage.getItem("empresaId");
 
 }

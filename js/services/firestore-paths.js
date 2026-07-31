@@ -6,7 +6,21 @@ import {
 
 import { getEmpresaId } from "./tenant.js";
 
-const empresaId = () => getEmpresaId();
+const empresaId = () => {
+
+const id = getEmpresaId();
+
+if(!id){
+
+throw new Error(
+"EMPRESA_NAO_CARREGADA"
+);
+
+}
+
+return id;
+
+};
 
 /* ==========================================================
    EMPRESA

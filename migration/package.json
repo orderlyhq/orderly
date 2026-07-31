@@ -1,0 +1,12 @@
+{
+  "name": "orderly-migration",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dry-run": "node index.js --dry-run"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}

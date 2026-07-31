@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+
+    function autenticado(){
+      return request.auth != null;
+    }
+
+
+    /*
+      Permite descobrir o tenant pelo UID
+    */
+    match /{path=**}/usuarios/{uid} {
+
+      allow read:
+        if autenticado()
+        && request.auth.uid == uid;
+
+    }
+
+
+
+    match /empresas/{empresaId} {
+
+
+      function usuarioDaEmpresa(){
+
+        return exists(
+          /databases/$(database)
+          /documents/empresas/$(empresaId)
+          /usuarios/$(request.auth.uid)
+        );
+
+      }
+
+
+
+      allow read:
+        if autenticado()
+        && usuarioDaEmpresa();
+
+
+
+      match /{colecao}/{documento} {
+
+
+        allow read, write:
+          if autenticado()
+          && usuarioDaEmpresa();
+
+
+      }
+
+
+    }
+
+  }
+}

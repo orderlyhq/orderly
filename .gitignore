@@ -54,3 +54,7 @@ server/.wwebjs_cache/
 # Replit
 .cache/
 .local/
+
+# Firebase Admin credentials
+serviceAccountKey.json
+**/*serviceAccount*.json

@@ -1,6 +1,4 @@
-import {
-  taxasEntregaRef
-} from "./firestore-paths.js";
+import { taxasEntregaRef } from "./firestore-paths.js";
 
 import {
   addDoc,
@@ -18,7 +16,9 @@ import {
    DELIVERY FEES SERVICE
 ========================================================== */
 
-const taxasEntregaCollection = taxasEntregaRef();
+function getTaxasEntregaCollection() {
+  return taxasEntregaRef();
+}
 
 /* ==========================================================
    HELPERS
@@ -77,7 +77,6 @@ function ordenarTaxas(lista = []) {
 ========================================================== */
 
 export async function criarTaxaEntrega(dados) {
-
   console.log("DADOS RECEBIDOS PARA CRIAR:", dados);
 
   const nome = normalizarNomeBairro(dados.nome);
@@ -100,7 +99,7 @@ export async function criarTaxaEntrega(dados) {
 
   console.log("PAYLOAD FIRESTORE:", payload);
 
-  const ref = await addDoc(taxasEntregaCollection, payload);
+  const ref = await addDoc(getTaxasEntregaCollection(), payload);
 
   console.log("CRIADO COM ID:", ref.id);
 
@@ -168,7 +167,7 @@ export async function buscarTaxaEntrega(id) {
 ========================================================== */
 
 export async function listarTaxasEntrega() {
-  const snapshot = await getDocs(taxasEntregaCollection);
+  const snapshot = await getDocs(getTaxasEntregaCollection());
 
   const taxas = snapshot.docs.map((docItem) => ({
     id: docItem.id,
@@ -193,7 +192,7 @@ export async function listarTaxasEntregaAtivas() {
 
 export function ouvirTaxasEntrega(callback) {
   return onSnapshot(
-    taxasEntregaCollection,
+    getTaxasEntregaCollection(),
     (snapshot) => {
       const taxas = snapshot.docs.map((docItem) => ({
         id: docItem.id,
@@ -209,7 +208,6 @@ export function ouvirTaxasEntrega(callback) {
 }
 
 export async function buscarBairroPorNome(nome) {
-
   const busca = normalizarNomeBairro(nome)
     .toLowerCase()
     .normalize("NFD")
@@ -219,41 +217,29 @@ export async function buscarBairroPorNome(nome) {
 
   if (!busca) return null;
 
-
   // 1) tenta encontrar exatamente
   const exato = taxas.find((bairro) => {
-
     const nomeBanco = normalizarNomeBairro(bairro.nome)
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
     return nomeBanco === busca;
-
   });
 
-
   if (exato) return exato;
-
 
   // 2) tenta encontrar por aproximação
   let melhor = null;
   let menorDistancia = Infinity;
 
-
   for (const bairro of taxas) {
-
     const nomeBanco = normalizarNomeBairro(bairro.nome)
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
-
-    const distancia = distanciaLevenshtein(
-      busca,
-      nomeBanco
-    );
-
+    const distancia = distanciaLevenshtein(busca, nomeBanco);
 
     if (distancia < menorDistancia) {
       menorDistancia = distancia;
@@ -261,16 +247,10 @@ export async function buscarBairroPorNome(nome) {
     }
   }
 
-
   // aceita até 35% de diferença
-  const limite = Math.max(
-    2,
-    Math.floor(melhor.nome.length * 0.35)
-  );
-
+  const limite = Math.max(2, Math.floor(melhor.nome.length * 0.35));
 
   if (melhor && menorDistancia <= limite) {
-
     console.log("Bairro encontrado por aproximação:", {
       digitado: nome,
       encontrado: melhor.nome,
@@ -279,7 +259,6 @@ export async function buscarBairroPorNome(nome) {
 
     return melhor;
   }
-
 
   return null;
 }

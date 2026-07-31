@@ -10,7 +10,7 @@ const path = require("path");
 const app = express();
 const PORT = 3002;
 
-const PRINTER_NAME = "ELGIN i9(COM3)";
+const PRINTER_NAME = null;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +28,12 @@ function imprimirRAW() {
 
     execFile(
       "powershell",
-      ["-ExecutionPolicy", "Bypass", "-File", arquivo],
+      [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        arquivo,
+      ],
       (erro, stdout, stderr) => {
         if (erro) {
           console.error(stderr);
@@ -248,7 +253,7 @@ async function iniciarImpressao() {
   const conectada = await verificarImpressora();
 
   if (!conectada) {
-    throw new Error(`Impressora "${PRINTER_NAME}" não encontrada.`);
+    throw new Error("Nenhuma impressora configurada.");
   }
 }
 
@@ -269,7 +274,7 @@ async function imprimirPedido(pedido) {
 
   cupom += CMD.DOUBLE;
 
-  cupom += "LANCHES MARINI\n";
+  cupom += pedido.nomeEmpresa || "ORDERLY";
 
   cupom += CMD.NORMAL;
 

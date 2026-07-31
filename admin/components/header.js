@@ -1,31 +1,54 @@
-export function carregarHeader(){
+import { buscarConfiguracoes } from "../../js/services/config.js";
 
-    document.getElementById("header").innerHTML = `
+export async function carregarHeader() {
 
-        <h1>Painel Administrativo</h1>
+  document.getElementById("header").innerHTML = `
 
-        <div class="user">
+<img 
+  id="admin-logo-img" 
+  class="admin-logo-img"
+  src="" 
+  alt="Logo da loja"
+>
 
-            <img src="../assets/avatar.png">
+<div>
 
-            <div>
+    <div class="user-name">
+        Administrador
+    </div>
 
-                <div class="user-name">
+    <small id="header-nome-loja">
+        Restaurante
+    </small>
 
-                    Administrador
+</div>
 
-                </div>
+`;
 
-                <small>
+  const logo = document.getElementById("admin-logo-img");
+  const nomeLoja = document.getElementById("header-nome-loja");
 
-                    Restaurante
 
-                </small>
+  const configuracao = await buscarConfiguracoes();
 
-            </div>
 
-        </div>
+  console.log("CONFIG HEADER:", configuracao);
 
-    `;
+
+  if (configuracao?.logo?.url) {
+
+    logo.src = configuracao.logo.url.replace(
+      "/upload/",
+      "/upload/w_80,h_80,c_fill,g_auto/",
+    );
+
+  }
+
+
+  if (configuracao?.loja?.nome) {
+
+    nomeLoja.textContent = configuracao.loja.nome;
+
+  }
 
 }

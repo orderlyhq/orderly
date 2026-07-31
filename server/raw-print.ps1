@@ -2,7 +2,7 @@ param(
     [string]$arquivoRaw
 )
 
-$printerName = "ELGIN i9(COM3)"
+$printerName = (Get-Printer | Where-Object Default -eq $true).Name
 
 if (!(Test-Path $arquivoRaw)) {
     throw "Arquivo RAW não encontrado: $arquivoRaw"

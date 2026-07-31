@@ -10,18 +10,14 @@ const serviceAccount = require("./serviceAccountKey.json");
 const { solicitarEntregador } = require("./bee/bee.orders");
 
 async function limparLockWhatsapp() {
-  const caminho =
-    "./.wwebjs_auth/session-mesa-facil/SingletonLock";
+  const caminho = "./.wwebjs_auth/session-mesa-facil/SingletonLock";
 
   if (fs.existsSync(caminho)) {
     try {
       fs.unlinkSync(caminho);
       console.log("[BOT] Lock antigo removido");
     } catch (erro) {
-      console.log(
-        "[BOT] Não conseguiu remover lock:",
-        erro.message
-      );
+      console.log("[BOT] Não conseguiu remover lock:", erro.message);
     }
   }
 }
@@ -119,7 +115,8 @@ function normalizarTelefone(telefone) {
   return numero;
 }
 
-const URL_PUBLICA = "https://marinilanches.vercel.app";
+const URL_PUBLICA =
+  "https://orderly.vercel.app/${slug}/status.html?id=${pedidoId}";
 
 function gerarLinkPedido(pedidoId) {
   return `${URL_PUBLICA}/status.html?id=${pedidoId}`;
@@ -158,7 +155,8 @@ Qualquer dúvida, estamos à disposição.
 
 Atenciosamente,
 
-*Equipe Lanches Marini*`;
+*Equipe ${pedido.empresaNome || "Orderly"}*
+`;
 
     case "PREPARANDO":
       return `Olá *${cliente}*!
@@ -241,7 +239,12 @@ async function enviarMensagemPedido(pedidoId, pedido) {
     return;
   }
 
-  const doc = await db.collection("pedidos").doc(pedidoId).get();
+  const doc = await db
+    .collection("empresas")
+    .doc(empresaId)
+    .collection("pedidos")
+    .doc(pedidoId)
+    .get();
 
   const dadosAtuais = doc.data();
 
@@ -343,10 +346,15 @@ async function enviarMensagemPedido(pedidoId, pedido) {
     console.error("[BOT] Erro envio:", e);
   }
 
-  await db.collection("pedidos").doc(pedidoId).update({
-    ultimoStatusNotificado: pedido.status,
-    notificacaoWhatsappEm: FieldValue.serverTimestamp(),
-  });
+  await db
+    .collection("empresas")
+    .doc(empresaId)
+    .collection("pedidos")
+    .doc(pedidoId)
+    .update({
+      ultimoStatusNotificado: pedido.status,
+      notificacaoWhatsappEm: FieldValue.serverTimestamp(),
+    });
 
   whatsappState.mensagensHoje++;
 
@@ -366,54 +374,63 @@ function iniciarListenerPedidos() {
 
   pedidosListenerIniciado = true;
 
-  unsubscribePedidos = db.collection("pedidos").onSnapshot(
-    async (snapshot) => {
-      for (const change of snapshot.docChanges()) {
-        if (change.type !== "added" && change.type !== "modified") continue;
+  unsubscribePedidos = db
+    .collection("empresas")
+    .doc(empresaId)
+    .collection("pedidos")
+    .onSnapshot(
+      async (snapshot) => {
+        for (const change of snapshot.docChanges()) {
+          if (change.type !== "added" && change.type !== "modified") continue;
 
-        const pedidoId = change.doc.id;
-        const pedido = change.doc.data();
+          const pedidoId = change.doc.id;
+          const pedido = change.doc.data();
 
-        const chaveEnvio = `${pedidoId}_${pedido.status}`;
+          const chaveEnvio = `${pedidoId}_${pedido.status}`;
 
-        const statusAtual = pedido.status || null;
-        const ultimoStatusNotificado = pedido.ultimoStatusNotificado || null;
+          const statusAtual = pedido.status || null;
+          const ultimoStatusNotificado = pedido.ultimoStatusNotificado || null;
 
-        if (!statusAtual) continue;
-        if (statusAtual === ultimoStatusNotificado) continue;
+          if (!statusAtual) continue;
+          if (statusAtual === ultimoStatusNotificado) continue;
 
-        // só envia se o WhatsApp estiver conectado
-        if (!whatsappPronto || reconectando) {
-          console.log(`[BOT] WhatsApp offline. Pedido ${pedidoId} aguardando.`);
+          // só envia se o WhatsApp estiver conectado
+          if (!whatsappPronto || reconectando) {
+            console.log(
+              `[BOT] WhatsApp offline. Pedido ${pedidoId} aguardando.`,
+            );
 
-          continue;
+            continue;
+          }
+
+          if (
+            enviando.has(chaveEnvio) ||
+            enviadosRecentemente.has(chaveEnvio)
+          ) {
+            console.log(`[BOT] Pedido ${chaveEnvio} já processado.`);
+
+            continue;
+          }
+
+          enviando.add(chaveEnvio);
+
+          filaMensagens = filaMensagens
+            .catch(() => {})
+            .then(async () => {
+              try {
+                await enviarMensagemPedido(pedidoId, pedido);
+              } catch (erro) {
+                console.error(`[BOT] Erro pedido ${pedidoId}:`, erro.message);
+              } finally {
+                enviando.delete(chaveEnvio);
+              }
+            });
         }
-
-        if (enviando.has(chaveEnvio) || enviadosRecentemente.has(chaveEnvio)) {
-          console.log(`[BOT] Pedido ${chaveEnvio} já processado.`);
-
-          continue;
-        }
-
-        enviando.add(chaveEnvio);
-
-        filaMensagens = filaMensagens
-          .catch(() => {})
-          .then(async () => {
-            try {
-              await enviarMensagemPedido(pedidoId, pedido);
-            } catch (erro) {
-              console.error(`[BOT] Erro pedido ${pedidoId}:`, erro.message);
-            } finally {
-              enviando.delete(chaveEnvio);
-            }
-          });
-      }
-    },
-    (erro) => {
-      console.error("[BOT] Erro ao ouvir pedidos:", erro);
-    },
-  );
+      },
+      (erro) => {
+        console.error("[BOT] Erro ao ouvir pedidos:", erro);
+      },
+    );
 
   console.log("[BOT] Listener de pedidos iniciado.");
 
@@ -442,77 +459,43 @@ async function reconectarWhatsapp() {
   pedidosListenerIniciado = false;
 
   try {
-
     console.log("[BOT] Iniciando limpeza para reconexão...");
 
     await aguardar(3000);
 
     limparFilaWhatsapp();
 
-
     if (client) {
-
       console.log("[BOT] Destruindo cliente WhatsApp antigo...");
 
       try {
-
         await client.logout();
-
       } catch (e) {
-
-        console.log(
-          "[BOT] Logout ignorado:",
-          e.message
-        );
-
+        console.log("[BOT] Logout ignorado:", e.message);
       }
-
 
       try {
-
         await client.destroy();
 
-        console.log(
-          "[BOT] Cliente destruído."
-        );
-
+        console.log("[BOT] Cliente destruído.");
       } catch (e) {
-
-        console.log(
-          "[BOT] Erro destroy:",
-          e.message
-        );
-
+        console.log("[BOT] Erro destroy:", e.message);
       }
 
-
       client = null;
-
     }
-
 
     await limparLockWhatsapp();
 
-
     await criarClienteWhatsapp();
-
-
   } catch (e) {
-
-    console.error(
-      "[BOT] Erro na reconexão:",
-      e.message
-    );
-
+    console.error("[BOT] Erro na reconexão:", e.message);
   } finally {
-
     reconectando = false;
-
   }
 }
 
 async function criarClienteWhatsapp() {
-
   await limparLockWhatsapp();
 
   if (inicializandoCliente) {
@@ -551,26 +534,26 @@ async function criarClienteWhatsapp() {
   }
 
   client = new Client({
-  authStrategy: new LocalAuth({
-    clientId: "mesa-facil",
-  }),
+    authStrategy: new LocalAuth({
+      clientId: "mesa-facil",
+    }),
 
-  puppeteer: {
-    headless: true,
+    puppeteer: {
+      headless: true,
 
-    executablePath:
-      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      executablePath:
+        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
 
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-gpu",
-      "--no-first-run",
-      "--no-zygote",
-    ],
-  },
-});
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-zygote",
+      ],
+    },
+  });
 
   client.on("qr", async (qr) => {
     try {
@@ -701,35 +684,20 @@ async function criarClienteWhatsapp() {
     console.warn("[BOT] WhatsApp desconectado:", reason);
 
     if (clienteDesconectado) {
+      try {
+        console.log("[BOT] Encerrando navegador antigo...");
 
-  try {
+        if (clienteDesconectado.pupBrowser) {
+          await clienteDesconectado.destroy();
 
-    console.log("[BOT] Encerrando navegador antigo...");
-
-
-    if (clienteDesconectado.pupBrowser) {
-
-      await clienteDesconectado.destroy();
-
-      console.log(
-        "[BOT] Navegador encerrado."
-      );
-
+          console.log("[BOT] Navegador encerrado.");
+        }
+      } catch (e) {
+        console.log("[BOT] Erro destruindo sessão:", e.message);
+      }
     }
 
-  } catch (e) {
-
-    console.log(
-      "[BOT] Erro destruindo sessão:",
-      e.message
-    );
-
-  }
-
-}
-
-
-await limparLockWhatsapp();
+    await limparLockWhatsapp();
 
     if (client === clienteDesconectado) {
       client = null;
@@ -744,8 +712,7 @@ await limparLockWhatsapp();
   });
 
   try {
-
-console.log("[BOT] Chamando initialize do WhatsApp...");
+    console.log("[BOT] Chamando initialize do WhatsApp...");
 
     await client.initialize();
   } catch (erro) {

@@ -31,7 +31,6 @@ export function carregarSidebar() {
     { href: "configuracoes.html", emoji: "⚙", texto: "Configurações" },
     { href: "adicionais.html", emoji: "➕", texto: "Adicionais" },
     { href: "ferramentas.html", emoji: "🛠", texto: "Ferramentas" },
-    { href: "integracoes.html", emoji: "🔗", texto: "Integrações" },
   ];
 
   const menuHtml = links

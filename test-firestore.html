@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script type="module">
+
+import {
+  auth,
+  db
+} from "./js/services/firebase.js";
+
+
+import {
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+import {
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
+await signInWithEmailAndPassword(
+  auth,
+  "admin@mesafacil.com",
+  "SUA_SENHA"
+);
+
+
+console.log(
+  "LOGIN:",
+  auth.currentUser.uid
+);
+
+
+
+const snap = await getDoc(
+  doc(
+    db,
+    "usuarios",
+    auth.currentUser.uid
+  )
+);
+
+
+console.log(
+  "EXISTE:",
+  snap.exists()
+);
+
+
+console.log(
+  "DADOS:",
+  snap.data()
+);
+
+
+</script>
+
+</body>
+</html>

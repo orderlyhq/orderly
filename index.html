@@ -6,8 +6,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Lanches Marini</title>
-    <link rel="icon" type="image/png" href="./assets/avatar.png" />
+    <title>Pedido Online</title>
+    <link id="favicon" rel="icon" />
 
     <!-- Bootstrap 5 -->
     <link
@@ -35,11 +35,7 @@
               <div class="col-12 col-lg">
                 <div class="d-flex align-items-start gap-3">
                   <div class="store-logo">
-                    <img
-                      id="storeAvatar"
-                      src="./assets/avatar.png"
-                      alt="Logo do restaurante"
-                    />
+                    <img id="logoLoja" />
                   </div>
 
                   <div class="flex-grow-1">
@@ -49,7 +45,7 @@
 
                     <!-- app.js altera esse h2 pelo seletor .topbar h2 -->
                     <div class="topbar">
-                      <h2 class="store-title mb-2">🍔 Lanches Marini</h2>
+                      <h2 id="nomeLoja" class="store-title mb-2"></h2>
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center gap-2">

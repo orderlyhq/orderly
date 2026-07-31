@@ -1,4 +1,10 @@
 import { configuracoesRef } from "../../js/services/firestore-paths.js";
+import { uploadLogoEmpresa } from "../../js/services/cloudinary.js";
+import { auth } from "../../js/services/firebase.js";
+import {
+  carregarEmpresaAtual,
+  getEmpresaId,
+} from "../../js/services/tenant.js";
 import {
   doc,
   getDoc,
@@ -16,6 +22,9 @@ function getElements() {
     btnRestaurar: document.getElementById("btnRestaurar"),
 
     nomeLoja: document.getElementById("nomeLoja"),
+
+    logoLoja: document.getElementById("logoLoja"),
+    previewLogoLoja: document.getElementById("previewLogoLoja"),
     telefone: document.getElementById("telefone"),
     whatsapp: document.getElementById("whatsapp"),
     email: document.getElementById("email"),
@@ -82,8 +91,8 @@ function coletarDados(el) {
     },
 
     localizacao: {
-      latitude: -23.000761054962886,
-      longitude: -47.51735362883598,
+      latitude: "",
+      longitude: "",
     },
 
     updatedAt: serverTimestamp(),
@@ -124,6 +133,11 @@ function preencherFormulario(el, dados = {}) {
   const seguranca = dados.seguranca || {};
 
   el.nomeLoja.value = loja.nome || "";
+  if (dados.logo && el.previewLogoLoja) {
+    el.previewLogoLoja.src = dados.logo;
+
+    el.previewLogoLoja.style.display = "block";
+  }
   el.telefone.value = loja.telefone || "";
   el.whatsapp.value = loja.whatsapp || "";
   el.email.value = loja.email || "";
@@ -170,10 +184,52 @@ async function carregarConfiguracoes(el) {
 }
 
 async function salvarConfiguracoes(el) {
-  const dados = coletarDados(el);
-  const ref = doc(configuracoesRef(), DOC_ID);
 
-  await setDoc(ref, dados, { merge: true });
+const empresaId = getEmpresaId();
+
+console.log("EMPRESA:", empresaId);
+
+const dados = coletarDados(el);
+
+const arquivo = el.logoLoja.files[0];
+
+if (arquivo) {
+
+  const upload = await uploadLogoEmpresa(
+    arquivo,
+    empresaId
+  );
+
+  dados.logo = {
+    url: upload.url,
+    publicId: upload.publicId
+  };
+
+}
+
+
+const ref = doc(
+  configuracoesRef(),
+  DOC_ID
+);
+
+console.log("SALVANDO EM:", ref.path);
+console.log("AUTH:", auth.currentUser.uid);
+
+await setDoc(
+  ref,
+  dados,
+  {
+    merge:true
+  }
+);
+
+
+console.log(
+"CONFIGURAÇÕES SALVAS",
+dados
+);
+
 }
 
 function restaurarPadrao(el) {
@@ -226,6 +282,18 @@ function restaurarPadrao(el) {
 }
 
 function registrarEventos(el) {
+  el.logoLoja.addEventListener("change", () => {
+    const arquivo = el.logoLoja.files[0];
+
+    if (!arquivo) return;
+
+    const url = URL.createObjectURL(arquivo);
+
+    el.previewLogoLoja.src = url;
+
+    el.previewLogoLoja.style.display = "block";
+  });
+
   el.distancia.addEventListener("change", () => {
     if (el.distancia.checked) {
       el.bairro.checked = false;
@@ -268,7 +336,6 @@ function registrarEventos(el) {
   let pagamentos = [];
 
   el.btnAdicionarPagamento.addEventListener("click", () => {
-
     const nome = prompt("Nome da nova forma de pagamento:");
 
     if (!nome) return;
@@ -276,7 +343,6 @@ function registrarEventos(el) {
     pagamentos = obterPagamentos();
 
     pagamentos.push({
-
       id: nome
         .toLowerCase()
         .normalize("NFD")
@@ -285,17 +351,14 @@ function registrarEventos(el) {
 
       nome,
 
-      ativo: true
-
+      ativo: true,
     });
 
     renderizarPagamentos(pagamentos);
-
   });
 }
 
 function renderizarPagamentos(pagamentos = []) {
-
   const lista = document.getElementById("listaPagamentos");
 
   if (!lista) return;
@@ -303,7 +366,6 @@ function renderizarPagamentos(pagamentos = []) {
   lista.innerHTML = "";
 
   pagamentos.forEach((pagamento, index) => {
-
     const linha = document.createElement("div");
 
     linha.className = "pagamento-item";
@@ -332,21 +394,16 @@ function renderizarPagamentos(pagamentos = []) {
       });
 
     lista.appendChild(linha);
-
   });
-
 }
 
 function obterPagamentos() {
-
   const lista = document.getElementById("listaPagamentos");
 
   return [...lista.querySelectorAll(".pagamento-item")].map((item) => {
-
     const checkbox = item.querySelector("input");
 
     return {
-
       id: item.textContent
         .replace("🗑", "")
         .trim()
@@ -355,16 +412,11 @@ function obterPagamentos() {
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\s+/g, "_"),
 
-      nome: item.textContent
-        .replace("🗑", "")
-        .trim(),
+      nome: item.textContent.replace("🗑", "").trim(),
 
-      ativo: checkbox.checked
-
+      ativo: checkbox.checked,
     };
-
   });
-
 }
 
 async function init() {
