@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Meu Perfil - Orderly</title>
+
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body class="cliente-body">
+
+<header>
+  <a href="../index.html">
+    <strong>Orderly</strong>
+  </a>
+
+  <a href="../index.html">
+    Voltar
+  </a>
+</header>
+
+
+<main class="perfil-container">
+
+  <section class="perfil-card">
+
+    <div class="avatar">
+      👤
+    </div>
+
+    <h1 id="nomeCliente">
+      Olá, Cliente
+    </h1>
+
+    <p id="emailCliente">
+      📧 carregando...
+    </p>
+
+
+    <div class="perfil-menu">
+
+      <a href="./pedidos.html">
+        📦 Meus pedidos
+      </a>
+
+
+      <a href="./editar-perfil.html">
+        ✏️ Editar perfil
+      </a>
+
+
+      <button id="sairBtn">
+        🚪 Sair
+      </button>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<script type="module">
+
+import { 
+  observarCliente,
+  logoutCliente
+} from "../js/services/auth-cliente.js";
+
+
+const nome = document.getElementById("nomeCliente");
+const email = document.getElementById("emailCliente");
+const sair = document.getElementById("sairBtn");
+
+
+observarCliente((cliente)=>{
+
+
+  if(!cliente){
+
+    window.location.href = "./login.html";
+    return;
+
+  }
+
+
+  nome.innerHTML = `
+    Olá, ${cliente.nome}
+  `;
+
+
+  email.innerHTML = `
+    📧 ${cliente.email}
+  `;
+
+
+});
+
+
+sair.addEventListener("click", async ()=>{
+
+
+  await logoutCliente();
+
+
+  window.location.href = "../index.html";
+
+
+});
+
+
+</script>
+
+
+</body>
+
+</html>

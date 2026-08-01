@@ -8,7 +8,7 @@ app.use(express.static(__dirname));
 
 app.get("/:slug", (req,res)=>{
     res.sendFile(
-        path.join(__dirname,"index.html")
+        path.join(__dirname,"loja.html")
     );
 });
 

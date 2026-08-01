@@ -16,8 +16,10 @@ import { garantirClienteAuth } from "../services/customers.js";
 import { isStoreOpen } from "../services/store-hours.js";
 import { carregarEmpresaPorSlug } from "../services/tenant.js";
 
+console.log("APP.JS CARREGADO");
+
 /* ==========================================================
-   CONFIG
+CONFIG
 ========================================================== */
 
 const CONFIG_DOC_ID = "geral";
@@ -157,9 +159,9 @@ async function carregarConfiguracoesLoja() {
 
     const config = snap.data();
 
-    const logo = config?.loja?.logo || "";
+    const logo = config?.logo?.url || config?.loja?.logo?.url || "";
 
-    const nome = config?.loja?.nome || "Orderly";
+    const nome = config?.loja?.nome || config?.nomeFantasia || "Orderly";
 
     const logoEl = document.getElementById("logoLoja");
 
@@ -197,17 +199,27 @@ async function carregarConfiguracoesLoja() {
    INIT
 ========================================================== */
 
-window.addEventListener("DOMContentLoaded", async () => {
+async function iniciarAplicacao() {
+  console.log("APP INICIANDO");
+
   try {
+    console.log("ANTES TENANT");
+
     await carregarEmpresaPorSlug();
 
-    await garantirClienteAuth();
+    console.log("AUTH OK");
 
     await iniciarCliente();
 
+    console.log("CLIENTE OK");
+
     await carregarConfiguracoesLoja();
 
+    console.log("CONFIG OK");
+
     await loadProducts();
+
+    console.log("PRODUTOS OK");
 
     iniciarCarrinho();
 
@@ -215,10 +227,24 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     await carregarMaisPedidos();
 
+    console.log("MAIS PEDIDOS OK");
+
     await carregarPromocoes();
 
+    console.log("PROMOCOES OK");
+
     await iniciarPedidosCliente();
+
+    console.log("PEDIDOS OK");
   } catch (error) {
-    console.error("Erro ao iniciar app do cliente:", error);
+    console.error("ERRO INIT APP:", error);
   }
-});
+}
+
+console.log("REGISTRANDO INIT");
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", iniciarAplicacao);
+} else {
+  iniciarAplicacao();
+}

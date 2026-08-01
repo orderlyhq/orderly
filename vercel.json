@@ -5,5 +5,11 @@
       "destination": "/admin/",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/:slug",
+      "destination": "/loja.html?slug=:slug"
+    }
   ]
 }

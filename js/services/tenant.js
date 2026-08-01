@@ -1,137 +1,156 @@
 import { auth, db } from "./firebase.js";
 
 import {
-doc,
-getDoc,
-collection,
-query,
-where,
-getDocs,
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 
 let empresaAtual = null;
 
-
 export async function carregarEmpresaAtual() {
+  const usuario = await new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe();
 
-const usuario = await new Promise(resolve => {
+      resolve(user);
+    });
+  });
 
-const unsubscribe = auth.onAuthStateChanged(user => {
+  if (!usuario) {
+    throw new Error("USUARIO_NAO_AUTENTICADO");
+  }
 
-unsubscribe();
+  console.log("UID LOGIN RAW:", JSON.stringify(usuario.uid));
 
-resolve(user);
+  console.log(
+    "UID CHARS:",
+    [...usuario.uid].map((c) => c.charCodeAt(0)),
+  );
 
-});
+  const usuarioRef = doc(db, "usuarios", usuario.uid);
 
-});
+  const caminho = `usuarios/${usuario.uid}`;
 
-if(!usuario){
-throw new Error("USUARIO_NAO_AUTENTICADO");
-}
+  console.log("CAMINHO RAW:", JSON.stringify(caminho));
 
+  const usuarioSnap = await getDoc(usuarioRef);
 
-console.log(
-  "UID LOGIN RAW:",
-  JSON.stringify(usuario.uid)
-);
+  console.log("CAMINHO BUSCADO:", usuarioRef.path);
 
-console.log(
-  "UID CHARS:",
-  [...usuario.uid].map(c => c.charCodeAt(0))
-);
+  console.log("PROJETO:", db.app.options.projectId);
 
+  console.log("DOC:", usuarioSnap.data());
 
-const usuarioRef = doc(
-  db,
-  "usuarios",
-  usuario.uid
-);
+  console.log("USUARIO RAIZ EXISTE:", usuarioSnap.exists());
 
-const caminho = `usuarios/${usuario.uid}`;
+  if (!usuarioSnap.exists()) {
+    console.error("Documento não encontrado:", usuarioRef.path);
 
-console.log(
-  "CAMINHO RAW:",
-  JSON.stringify(caminho)
-);
+    return;
+  }
 
-const usuarioSnap = await getDoc(usuarioRef);
+  const dados = usuarioSnap.data();
 
-console.log(
-  "CAMINHO BUSCADO:",
-  usuarioRef.path
-);
+  console.log("DADOS USUARIO:", dados);
 
-console.log(
-  "PROJETO:",
-  db.app.options.projectId
-);
+  if (!dados.empresaId) {
+    throw new Error("USUARIO_SEM_EMPRESA");
+  }
 
-console.log(
-  "DOC:",
-  usuarioSnap.data()
-);
+  empresaAtual = dados.empresaId;
 
+  localStorage.setItem("empresaId", empresaAtual);
 
-console.log(
-"USUARIO RAIZ EXISTE:",
-usuarioSnap.exists()
-);
+  localStorage.setItem("empresaSlug", slug);
 
+  console.log("EMPRESA CARREGADA:", empresaAtual);
 
-if(!usuarioSnap.exists()){
-
-console.error(
-"Documento não encontrado:",
-usuarioRef.path
-);
-
-return;
-
-}
-
-
-const dados = usuarioSnap.data();
-
-
-console.log(
-"DADOS USUARIO:",
-dados
-);
-
-
-if(!dados.empresaId){
-
-throw new Error(
-"USUARIO_SEM_EMPRESA"
-);
-
-}
-
-
-empresaAtual = dados.empresaId;
-
-
-localStorage.setItem(
-"empresaId",
-empresaAtual
-);
-
-
-console.log(
-"EMPRESA CARREGADA:",
-empresaAtual
-);
-
-
-return empresaAtual;
-
+  return empresaAtual;
 }
 
 export function getEmpresaId() {
+  return empresaAtual || localStorage.getItem("empresaId");
+}
 
-return empresaAtual 
-|| localStorage.getItem("empresaId");
+/* ==========================================================
+CARREGAR EMPRESA POR SLUG (CLIENTE)
+========================================================== */
 
+export async function carregarEmpresaPorSlug() {
+  if (empresaAtual) {
+    return empresaAtual;
+  }
+
+  /*
+1.
+Tenta recuperar empresa já carregada
+*/
+
+  const empresaLocal = localStorage.getItem("empresaId");
+
+  const slugAtual = new URLSearchParams(window.location.search).get("slug");
+
+  const slugSalvo = localStorage.getItem("empresaSlug");
+
+  if (empresaLocal && slugAtual && slugSalvo === slugAtual) {
+    empresaAtual = empresaLocal;
+
+    return empresaAtual;
+  }
+
+  /*
+2.
+Busca slug pela URL
+
+Aceita:
+
+loja.html?slug=lanches-marini
+
+e futuramente:
+
+/lanches-marini
+*/
+
+  const params = new URLSearchParams(window.location.search);
+
+  let slug = params.get("slug");
+
+  if (!slug) {
+    const caminho = window.location.pathname.replace(/^\/+/, "").split("/")[0];
+
+    if (caminho && caminho !== "loja.html") {
+      slug = caminho;
+    }
+  }
+
+  if (!slug) {
+    throw new Error("SLUG_EMPRESA_NAO_INFORMADO");
+  }
+
+  /*
+3.
+Busca empresa pelo slug
+*/
+
+  const q = query(collection(db, "empresas"), where("slug", "==", slug));
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    throw new Error("EMPRESA_NAO_ENCONTRADA");
+  }
+
+  empresaAtual = snapshot.docs[0].id;
+
+  localStorage.setItem("empresaId", empresaAtual);
+
+  localStorage.setItem("empresaSlug", slug);
+
+  console.log("EMPRESA CARREGADA PELO SLUG:", empresaAtual);
+
+  return empresaAtual;
 }

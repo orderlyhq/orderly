@@ -1,0 +1,956 @@
+/* =========================================================
+   ORDERLY - HOME PREMIUM MARKETPLACE
+   Correções:
+   - classes alinhadas ao HTML real
+   - grid restaurantes
+   - categorias
+   - hero
+   - seções
+   - footer
+========================================================= */
+
+
+:root {
+    --primary:#ea1d2c;
+    --primary-dark:#c91422;
+
+    --background:#fafafa;
+    --surface:#fff;
+
+    --text:#1f2937;
+    --muted:#6b7280;
+
+    --border:#e5e7eb;
+
+    --shadow:
+        0 12px 30px rgba(0,0,0,.08);
+
+    --shadow-hover:
+        0 18px 40px rgba(0,0,0,.14);
+
+    --radius:20px;
+
+    --container:1200px;
+}
+
+
+*,
+*::before,
+*::after{
+    box-sizing:border-box;
+}
+
+
+html{
+    scroll-behavior:smooth;
+}
+
+
+body{
+    margin:0;
+    background:var(--background);
+    color:var(--text);
+
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    overflow-x:hidden;
+}
+
+
+img{
+    max-width:100%;
+    display:block;
+}
+
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+
+button,
+input,
+select{
+    font-family:inherit;
+}
+
+
+.container{
+
+    width:min(
+        calc(100% - 40px),
+        var(--container)
+    );
+
+    margin:auto;
+}
+
+
+/* =========================================================
+HEADER
+========================================================= */
+
+
+.home-header{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:1000;
+
+    height:72px;
+
+    background:
+        rgba(255,255,255,.92);
+
+    backdrop-filter:blur(14px);
+
+    border-bottom:
+        1px solid var(--border);
+
+}
+
+
+.header-container{
+
+    height:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:25px;
+}
+
+
+.logo{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    color:var(--primary);
+
+    font-size:1.5rem;
+
+    font-weight:900;
+}
+
+
+.logo img{
+
+    width:42px;
+
+    height:42px;
+
+}
+
+
+.search-box{
+
+    flex:1;
+
+    max-width:520px;
+
+    height:46px;
+
+    background:#f3f4f6;
+
+    border-radius:999px;
+
+    display:flex;
+
+    align-items:center;
+
+    padding:0 18px;
+
+}
+
+
+.search-box i{
+
+    color:var(--muted);
+
+    margin-right:10px;
+
+}
+
+
+.search-box input{
+
+    width:100%;
+
+    border:0;
+
+    outline:0;
+
+    background:none;
+
+}
+
+
+.header-actions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+
+.location-box{
+
+    background:#fff3f3;
+
+    color:var(--primary);
+
+    border-radius:14px;
+
+}
+
+
+.login-button{
+
+    padding:11px 22px;
+
+    border-radius:999px;
+
+    background:var(--primary);
+
+    color:white;
+
+    font-weight:700;
+
+}
+
+
+
+/* =========================================================
+HERO
+========================================================= */
+
+
+.hero{
+
+    width:min(
+        calc(100% - 40px),
+        var(--container)
+    );
+
+    margin:40px auto 70px;
+
+    min-height:430px;
+
+    display:flex;
+
+    align-items:center;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:32px;
+
+    background:
+        linear-gradient(
+            120deg,
+            #fff1f2,
+            white
+        );
+
+    box-shadow:var(--shadow);
+
+}
+
+
+.hero-content{
+
+    width:50%;
+
+    padding:60px;
+
+    position:relative;
+
+    z-index:2;
+
+}
+
+
+.hero-badge{
+
+    display:inline-block;
+
+    padding:8px 16px;
+
+    background:white;
+
+    border-radius:999px;
+
+    font-weight:700;
+
+    margin-bottom:20px;
+
+}
+
+
+.hero-title{
+
+    font-size:
+        clamp(2.2rem,5vw,3.5rem);
+
+    line-height:1.1;
+
+    font-weight:900;
+
+    margin:0 0 20px;
+
+}
+
+
+.hero-description{
+
+    color:var(--muted);
+
+    max-width:480px;
+
+    font-size:1.1rem;
+
+}
+
+
+.hero-image{
+
+    position:absolute;
+
+    right:0;
+
+    top:0;
+
+    width:50%;
+
+    height:100%;
+
+}
+
+
+.hero-image img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+
+.hero-overlay{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.95),
+            transparent
+        );
+
+}
+
+
+
+/* =========================================================
+SECTIONS
+========================================================= */
+
+
+section{
+
+    margin-bottom:80px;
+
+}
+
+
+.section-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:30px;
+
+}
+
+
+.section-header h2{
+
+    margin:0;
+
+    font-size:2rem;
+
+    font-weight:900;
+
+}
+
+
+.section-header p{
+
+    color:var(--muted);
+
+}
+
+
+
+/* =========================================================
+CATEGORIES
+========================================================= */
+
+
+.categories-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(6,1fr);
+
+    gap:20px;
+
+}
+
+
+.category-card{
+
+    background:white;
+
+    border:1px solid var(--border);
+
+    border-radius:18px;
+
+    padding:18px 10px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:12px;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+
+.category-card:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:var(--shadow);
+
+}
+
+
+.category-image{
+
+    width:75px;
+
+    height:75px;
+
+    border-radius:50%;
+
+    background:#fff1f2;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+.category-image span{
+
+    font-size:2.2rem;
+
+}
+
+
+.category-name{
+
+    font-weight:700;
+
+}
+
+
+
+/* =========================================================
+RESTAURANTS
+========================================================= */
+
+
+.restaurant-grid,
+.restaurant-list{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:25px;
+
+}
+
+
+
+.restaurant-card{
+
+    background:white;
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    border:1px solid var(--border);
+
+    transition:.25s;
+
+}
+
+
+.restaurant-card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:var(--shadow-hover);
+
+}
+
+
+
+.restaurant-cover{
+
+    height:190px;
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+
+
+.restaurant-image{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+
+
+.restaurant-info{
+
+    padding:18px;
+
+}
+
+
+
+.restaurant-name{
+
+    margin:0 0 10px;
+
+    font-size:1.2rem;
+
+    font-weight:900;
+
+}
+
+
+
+.rating{
+
+    font-size:.95rem;
+
+    margin-bottom:10px;
+
+}
+
+
+
+.restaurant-time{
+
+    display:block;
+
+    color:var(--muted);
+
+    margin-bottom:8px;
+
+}
+
+
+
+.restaurant-category{
+
+    color:var(--muted);
+
+    margin-bottom:15px;
+
+}
+
+
+
+.restaurant-button{
+
+    width:100%;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    background:var(--primary);
+
+    color:white;
+
+    font-weight:700;
+
+}
+
+
+
+/* =========================================================
+PROMOTIONS
+========================================================= */
+
+
+.promotion-grid,
+#promotionBanners{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:25px;
+
+}
+
+
+.promotion-card{
+
+    overflow:hidden;
+
+    border-radius:20px;
+
+    background:white;
+
+    box-shadow:var(--shadow);
+
+}
+
+
+.promotion-card img{
+
+    width:100%;
+
+    height:220px;
+
+    object-fit:cover;
+
+}
+
+
+.promotion-content{
+
+    padding:20px;
+
+}
+
+
+
+/* =========================================================
+STEPS / ADVANTAGES
+========================================================= */
+
+
+.steps-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:25px;
+
+}
+
+
+.step-card,
+.advantage-card{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    border:1px solid var(--border);
+
+}
+
+
+.step-number{
+
+    width:45px;
+
+    height:45px;
+
+    border-radius:50%;
+
+    margin:auto auto 15px;
+
+    background:var(--primary);
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-weight:900;
+
+}
+
+
+
+.advantages .row{
+
+    display:block;
+
+}
+
+
+
+/* =========================================================
+CTA
+========================================================= */
+
+
+.cta{
+
+    padding:60px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            #ff5b66
+        );
+
+    border-radius:30px;
+
+    color:white;
+
+    text-align:center;
+
+}
+
+
+
+/* =========================================================
+NEWSLETTER
+========================================================= */
+
+
+.newsletter-box{
+
+    background:white;
+
+    padding:35px;
+
+    border-radius:22px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+}
+
+
+
+/* =========================================================
+FOOTER
+========================================================= */
+
+
+.home-footer{
+
+    background:#111827;
+
+    color:white;
+
+    padding:70px 0 30px;
+
+}
+
+
+.footer-columns{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:40px;
+
+}
+
+
+.footer-columns a{
+
+    color:#d1d5db;
+
+}
+
+
+
+/* =========================================================
+RESPONSIVE
+========================================================= */
+
+
+@media(max-width:1100px){
+
+    .restaurant-grid,
+    .restaurant-list{
+
+        grid-template-columns:
+            repeat(3,1fr);
+
+    }
+
+
+    .categories-grid{
+
+        grid-template-columns:
+            repeat(4,1fr);
+
+    }
+
+}
+
+
+@media(max-width:768px){
+
+    .hero{
+
+        min-height:auto;
+
+    }
+
+
+    .hero-content{
+
+        width:100%;
+
+        padding:35px;
+
+    }
+
+
+    .hero-image{
+
+        display:none;
+
+    }
+
+
+    .restaurant-grid,
+    .restaurant-list{
+
+        grid-template-columns:
+            repeat(2,1fr);
+
+    }
+
+
+    .categories-grid{
+
+        grid-template-columns:
+            repeat(3,1fr);
+
+    }
+
+
+    .steps-grid,
+    .promotion-grid,
+    #promotionBanners{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .footer-columns{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+
+@media(max-width:480px){
+
+    .restaurant-grid,
+    .restaurant-list{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .categories-grid{
+
+        grid-template-columns:
+            repeat(2,1fr);
+
+    }
+
+
+    .section-header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+    }
+
+}

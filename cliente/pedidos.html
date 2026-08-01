@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Meus pedidos - Orderly</title>
+
+<link rel="stylesheet" href="../css/styles.css">
+
+</head>
+
+
+<body class="cliente-body">
+
+
+<header class="perfil-header">
+
+    <a href="../index.html">
+        <strong>Orderly</strong>
+    </a>
+
+    <a href="./perfil.html">
+        Voltar
+    </a>
+
+</header>
+
+
+
+<main class="perfil-container">
+
+
+<section class="perfil-card">
+
+
+<h1>
+📦 Meus pedidos
+</h1>
+
+
+<p id="clienteInfo">
+Carregando pedidos...
+</p>
+
+
+
+<div id="listaPedidos">
+
+
+</div>
+
+
+</section>
+
+
+</main>
+
+
+
+
+<script type="module">
+
+
+import {
+observarCliente
+} from "../js/services/auth-cliente.js";
+
+
+import {
+db
+} from "../js/services/firebase.js";
+
+
+import {
+collection,
+query,
+where,
+orderBy,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
+const lista =
+document.getElementById("listaPedidos");
+
+
+
+observarCliente(async(user)=>{
+
+
+if(!user){
+
+window.location.href="./login.html";
+
+return;
+
+}
+
+
+
+const pedidosRef =
+collection(db,"pedidos");
+
+
+const q =
+query(
+pedidosRef,
+where(
+"clienteUid",
+"==",
+user.uid
+),
+orderBy(
+"criadoEm",
+"desc"
+)
+);
+
+
+
+const snap =
+await getDocs(q);
+
+
+
+if(snap.empty){
+
+lista.innerHTML=`
+
+<div class="pedido-vazio">
+
+Você ainda não realizou nenhum pedido.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+
+lista.innerHTML="";
+
+
+
+snap.forEach(doc=>{
+
+
+const pedido =
+doc.data();
+
+
+
+lista.innerHTML += `
+
+
+<div class="pedido-card">
+
+
+<h3>
+Pedido #${doc.id}
+</h3>
+
+
+<p>
+Status:
+<strong>
+${pedido.status || "Recebido"}
+</strong>
+</p>
+
+
+<p>
+Total:
+<strong>
+R$ ${(pedido.total || 0).toFixed(2)}
+</strong>
+</p>
+
+
+<a href="../status.html?id=${doc.id}">
+Acompanhar pedido
+</a>
+
+
+</div>
+
+
+`;
+
+});
+
+
+});
+
+
+
+</script>
+
+
+</body>
+
+</html>

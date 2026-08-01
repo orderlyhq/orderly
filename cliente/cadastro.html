@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Criar conta • Orderly</title>
+
+<link rel="stylesheet" href="../css/cadastro.css">
+
+</head>
+
+
+<body>
+
+
+<main class="container" style="max-width:450px;padding-top:80px">
+
+
+<div class="restaurant-card">
+
+<div class="restaurant-info">
+
+
+<h1 class="restaurant-name">
+Criar conta
+</h1>
+
+
+<form id="cadastroCliente">
+
+
+<input
+id="nome"
+class="search-input"
+placeholder="Nome completo"
+required
+>
+
+
+<br><br>
+
+
+<input
+id="email"
+type="email"
+class="search-input"
+placeholder="E-mail"
+required
+>
+
+
+<br><br>
+
+
+<label class="form-label">
+Telefone
+</label>
+
+<input
+id="telefone"
+class="form-control mb-3"
+placeholder="+55 (19) 99999-9999"
+maxlength="19"
+required
+>
+
+
+<br><br>
+
+
+<input
+id="senha"
+type="password"
+class="search-input"
+placeholder="Senha"
+required
+>
+
+
+<br><br>
+
+
+<button
+class="restaurant-button"
+type="submit"
+>
+Criar conta
+</button>
+
+
+</form>
+
+
+<p style="margin-top:20px">
+
+Já possui conta?
+
+<a href="./login.html">
+Entrar
+</a>
+
+</p>
+
+
+</div>
+
+</div>
+
+
+</main>
+
+
+
+<script type="module">
+
+import {
+ criarCliente
+} from "../js/services/auth-cliente.js";
+
+
+function formatarTelefone(valor){
+
+    let numero = valor.replace(/\D/g,"");
+
+
+    // limita 13 números:
+    // 55 + DDD + 9 + 8 números
+    numero = numero.substring(0,13);
+
+
+
+    if(numero.length <= 2){
+
+        return "+" + numero;
+
+    }
+
+
+    if(numero.length <= 4){
+
+        return `+${numero.slice(0,2)} (${numero.slice(2)}`;
+
+    }
+
+
+    if(numero.length <= 9){
+
+        return `+${numero.slice(0,2)} (${numero.slice(2,4)}) ${numero.slice(4)}`;
+
+    }
+
+
+    return `+${numero.slice(0,2)} (${numero.slice(2,4)}) ${numero.slice(4,9)}-${numero.slice(9,13)}`;
+
+}
+
+document
+.getElementById("telefone")
+.addEventListener(
+"input",
+(e)=>{
+
+e.target.value =
+formatarTelefone(e.target.value);
+
+});
+
+document
+.getElementById("cadastroCliente")
+.addEventListener("submit",async(e)=>{
+
+
+e.preventDefault();
+
+
+try{
+
+
+await criarCliente({
+
+nome:
+document.getElementById("nome").value,
+
+email:
+document.getElementById("email").value,
+
+telefone:
+formatarTelefone(
+document.getElementById("telefone").value
+),
+
+senha:
+document.getElementById("senha").value
+
+});
+
+
+alert(
+"Conta criada com sucesso!"
+);
+
+
+window.location.href =
+"./login.html";
+
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"Erro ao criar conta."
+);
+
+}
+
+
+});
+
+
+</script>
+
+
+</body>
+
+</html>
