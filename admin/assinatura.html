@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Assinatura • Orderly</title>
+
+    <link rel="icon" href="../favicon.ico" />
+
+    <link rel="stylesheet" href="css/admin.css" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+
+    <aside id="sidebar"></aside>
+
+    <!-- Conteúdo -->
+
+    <main class="content">
+      <!-- Header -->
+
+      <header id="header"></header>
+
+      <section class="dashboard">
+        <div class="page-title">
+          <div>
+            <h1>Assinatura</h1>
+
+            <p class="subtitle">Gerencie sua assinatura do Orderly.</p>
+          </div>
+        </div>
+
+        <!-- Cards superiores -->
+
+        <section class="cards">
+          <!-- Plano -->
+
+          <div class="card">
+            <div class="card-icon">💎</div>
+
+            <div class="card-title">Plano Atual</div>
+
+            <div class="card-value" id="planoAtual">Free</div>
+
+            <div class="card-footer" id="descricaoPlano">Plano gratuito</div>
+          </div>
+
+          <!-- Status -->
+
+          <div class="card">
+            <div class="card-icon">✅</div>
+
+            <div class="card-title">Status</div>
+
+            <div class="card-value" id="statusAssinatura">Ativa</div>
+
+            <div class="card-footer" id="statusDescricao">
+              Mensalidade em dia
+            </div>
+          </div>
+
+          <!-- Próxima cobrança -->
+
+          <div class="card">
+            <div class="card-icon">📅</div>
+
+            <div class="card-title">Próxima cobrança</div>
+
+            <div class="card-value" id="proximaCobranca">--</div>
+
+            <div class="card-footer">Renovação automática</div>
+          </div>
+
+          <!-- Valor -->
+
+          <div class="card">
+            <div class="card-icon">💰</div>
+
+            <div class="card-title">Mensalidade</div>
+
+            <div class="card-value" id="valorMensalidade">R$ 0,00</div>
+
+            <div class="card-footer">Cobrança via PIX</div>
+          </div>
+        </section>
+
+        <!-- Grid principal -->
+
+        <section class="dashboard-grid">
+          <!-- Plano -->
+
+          <div class="panel">
+            <div class="panel-title">Plano contratado</div>
+
+            <div class="assinatura-plano">
+              <h2 id="nomePlano">Orderly Free</h2>
+
+              <p id="descricaoPlanoCompleta">
+                Seu restaurante está utilizando o plano gratuito.
+              </p>
+
+              <div class="assinatura-beneficios">
+                <div>✔ Pedidos ilimitados</div>
+
+                <div>✔ Cardápio digital</div>
+
+                <div>✔ Painel administrativo</div>
+
+                <div>✔ WhatsApp integrado</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status -->
+
+          <div class="panel">
+            <div class="panel-title">Situação da assinatura</div>
+
+            <div class="assinatura-status">
+              <div class="status-badge status-ativa">Assinatura Ativa</div>
+
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <td>Situação</td>
+
+                    <td id="statusTexto">Ativa</td>
+                  </tr>
+
+                  <tr>
+                    <td>Vencimento</td>
+
+                    <td id="vencimentoAtual">--</td>
+                  </tr>
+
+                  <tr>
+                    <td>Próxima cobrança</td>
+
+                    <td id="proximaData">--</td>
+                  </tr>
+
+                  <tr>
+                    <td>Método</td>
+
+                    <td>PIX</td>
+                  </tr>
+
+                  <tr>
+                    <td>Valor</td>
+
+                    <td id="valorPlano">R$ 0,00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+        <!-- ===================================================== -->
+        <!-- PAGAMENTO -->
+        <!-- ===================================================== -->
+
+        <div class="dashboard-grid">
+          <!-- QR Code PIX -->
+          <section class="panel">
+            <div class="panel-title">💳 Pagamento da Assinatura</div>
+
+            <div class="assinatura-pagamento">
+              <div class="pix-area">
+                <img
+                  id="pixQRCode"
+                  src="../img/placeholder.png"
+                  alt="QR Code PIX"
+                  class="pix-qrcode"
+                />
+              </div>
+
+              <div class="pix-info">
+                <h3>PIX Copia e Cola</h3>
+
+                <textarea
+                  id="pixCodigo"
+                  readonly
+                  class="pix-codigo"
+                  placeholder="Gerando código PIX..."
+                ></textarea>
+
+                <div class="pix-buttons">
+                  <button id="btnCopiarPix" class="btn btn-primary">
+                    📋 Copiar Código
+                  </button>
+
+                  <button id="btnAtualizarPix" class="btn">🔄 Atualizar</button>
+                </div>
+
+                <div class="pix-status">
+                  <span id="pixStatus"> Aguardando geração do pagamento </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Próxima cobrança -->
+          <section class="panel">
+            <div class="panel-title">📅 Próxima Cobrança</div>
+
+            <div class="assinatura-info">
+              <div class="info-item">
+                <span class="label"> Próximo vencimento </span>
+
+                <strong id="proximoVencimento"> -- </strong>
+              </div>
+
+              <div class="info-item">
+                <span class="label"> Valor </span>
+
+                <strong id="valorRenovacao"> R$ 0,00 </strong>
+              </div>
+
+              <div class="info-item">
+                <span class="label"> Renovação </span>
+
+                <strong id="tipoRenovacao"> Mensal </strong>
+              </div>
+
+              <div class="info-item">
+                <span class="label"> Status </span>
+
+                <strong id="statusPagamento" class="status-badge pendente">
+                  Pendente
+                </strong>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- HISTÓRICO -->
+        <!-- ===================================================== -->
+
+        <section class="panel">
+          <div class="panel-title">🧾 Histórico de Pagamentos</div>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Data</th>
+
+                <th>Plano</th>
+
+                <th>Valor</th>
+
+                <th>Método</th>
+
+                <th>Status</th>
+
+                <th>Comprovante</th>
+              </tr>
+            </thead>
+
+            <tbody id="historicoPagamentos">
+              <tr>
+                <td colspan="6">Nenhum pagamento encontrado.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </section>
+    </main>
+
+    <!-- ===================================================== -->
+    <!-- LIBS -->
+    <!-- ===================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

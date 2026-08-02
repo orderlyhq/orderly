@@ -25,6 +25,11 @@ export function carregarSidebar() {
     { href: "mesas.html", emoji: "🪑", texto: "Mesas" },
     { href: "taxas.html", emoji: "🚚", texto: "Taxas de Entrega" },
     { href: "financeiro.html", emoji: "💰", texto: "Financeiro" },
+    {
+      href: "assinatura.html",
+      emoji: "💳",
+      texto: "Assinatura",
+    },
     { href: "relatorios.html", emoji: "📈", texto: "Relatórios" },
     { href: "whatsapp.html", emoji: "📱", texto: "WhatsApp" },
     { href: "impressora.html", emoji: "🖨", texto: "Impressora" },

@@ -63,9 +63,23 @@ export async function carregarEmpresaAtual() {
 
   empresaAtual = dados.empresaId;
 
+  const empresaRef = doc(db, "empresas", empresaAtual);
+
+  const empresaSnap = await getDoc(empresaRef);
+
+  if (!empresaSnap.exists()) {
+    throw new Error("EMPRESA_NAO_ENCONTRADA");
+  }
+
+  const empresa = empresaSnap.data();
+
   localStorage.setItem("empresaId", empresaAtual);
 
-  localStorage.setItem("empresaSlug", slug);
+  if (empresa.slug) {
+    localStorage.setItem("empresaSlug", empresa.slug);
+  }
+
+  console.log("EMPRESA:", empresa);
 
   console.log("EMPRESA CARREGADA:", empresaAtual);
 

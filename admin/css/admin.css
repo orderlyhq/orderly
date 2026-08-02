@@ -7120,3 +7120,32 @@ aside.collapsed ~ .content{
     object-fit: contain;
     border-radius: 50%;
 }
+
+/* ==========================================================
+   ASSINATURA
+========================================================== */
+
+.pix-qrcode {
+  width: 240px;
+  height: 240px;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+}
+
+#pixQRCode[src=""],
+#pixQRCode:not([src]) {
+  display: none;
+}
+
+.pix-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}

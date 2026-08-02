@@ -3,59 +3,32 @@ import { carregarHeader } from "../components/header.js";
 import { protegerPaginaAdmin } from "../../js/services/auth.js";
 import { bootstrapEmpresa } from "../../js/services/bootstrap.js";
 
-import {
-  carregarEmpresaAtual
-} from "../../js/services/tenant.js";
+import { carregarEmpresaAtual } from "../../js/services/tenant.js";
 import { auth } from "../../js/services/firebase.js";
 
-
 async function iniciarAdmin() {
+  const autorizado = await protegerPaginaAdmin();
 
+  if (!autorizado) {
+    return;
+  }
 
-const autorizado =
-await protegerPaginaAdmin();
+  console.log("ANTES TENANT", auth.currentUser);
 
+  console.log("UID RAW:", auth.currentUser.uid);
+  console.log("UID LENGTH:", auth.currentUser.uid.length);
 
+  await carregarEmpresaAtual();
 
-if (!autorizado) {
+  console.log("DEPOIS TENANT", localStorage.getItem("empresaId"));
 
-return;
+  await bootstrapEmpresa();
 
-}
+  await import("./notificadorPedidos.js");
 
+  carregarSidebar();
 
-
-console.log(
-"ANTES TENANT",
-auth.currentUser
-);
-
-console.log("UID RAW:", auth.currentUser.uid);
-console.log("UID LENGTH:", auth.currentUser.uid.length);
-
-await carregarEmpresaAtual();
-
-
-console.log(
-"DEPOIS TENANT",
-localStorage.getItem("empresaId")
-);
-
-
-
-await bootstrapEmpresa();
-
-
-
-await import("./notificadorPedidos.js");
-
-
-
-carregarSidebar();
-
-await carregarHeader();
-
-
+  await carregarHeader();
 
   const pagina = window.location.pathname.split("/").pop() || "index.html";
 
@@ -101,6 +74,13 @@ await carregarHeader();
     case "financeiro.html":
       console.log("Carregando financeiro.js");
       await import("./financeiro.js");
+      break;
+
+    case "assinatura.html":
+      console.log("Carregando assinatura.js");
+
+      await import("./assinatura.js");
+
       break;
 
     case "relatorios.html":

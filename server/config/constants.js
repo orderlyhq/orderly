@@ -1,0 +1,29 @@
+module.exports = {
+  STATUS_PEDIDO: {
+    RECEBIDO: "RECEBIDO",
+    PREPARANDO: "PREPARANDO",
+    PRONTO: "PRONTO",
+    ENTREGUE: "ENTREGUE",
+    CANCELADO: "CANCELADO",
+  },
+
+  PAGAMENTO_STATUS: {
+    PENDENTE: "PENDENTE",
+    PAGO: "PAGO",
+    CANCELADO: "CANCELADO",
+  },
+
+  PLANOS: {
+    FREE: "free",
+    STARTER: "starter",
+    PRO: "pro",
+    ENTERPRISE: "enterprise",
+  },
+
+  ASSINATURA_STATUS: {
+    ATIVA: "ATIVA",
+    PENDENTE: "PENDENTE",
+    ATRASADA: "ATRASADA",
+    CANCELADA: "CANCELADA",
+  },
+};

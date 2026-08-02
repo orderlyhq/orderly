@@ -5,7 +5,7 @@
   "main": "printer.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node printer.js"
+    "start": "node index.js"
   },
   "keywords": [
     "mesa-facil",
@@ -20,6 +20,7 @@
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "firebase-admin": "^14.1.0",
+    "mercadopago": "^3.2.1",
     "node-thermal-printer": "^4.5.0",
     "puppeteer": "^25.3.0",
     "qrcode": "^1.5.4",

@@ -123,11 +123,6 @@ function preencherFormulario(el, dados = {}) {
         nome: "Cartão",
         ativo: pagamentos.cartao ?? true,
       },
-      {
-        id: "pagbank",
-        nome: "PagBank",
-        ativo: pagamentos.pagbank ?? true,
-      },
     ];
   }
   const seguranca = dados.seguranca || {};
@@ -266,11 +261,6 @@ function restaurarPadrao(el) {
       {
         id: "cartao",
         nome: "Cartão",
-        ativo: true,
-      },
-      {
-        id: "pagbank",
-        nome: "PagBank",
         ativo: true,
       },
     ],
