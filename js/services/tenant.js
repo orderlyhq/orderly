@@ -134,12 +134,14 @@ e futuramente:
   let slug = params.get("slug");
 
   if (!slug) {
-    const caminho = window.location.pathname.replace(/^\/+/, "").split("/")[0];
+    const partes = window.location.pathname.split("/").filter(Boolean);
 
-    if (caminho && caminho !== "loja.html") {
-      slug = caminho;
+    if (partes.length === 1 && partes[0] !== "loja.html") {
+      slug = partes[0];
     }
   }
+
+  console.log("SLUG IDENTIFICADO:", slug);
 
   if (!slug) {
     throw new Error("SLUG_EMPRESA_NAO_INFORMADO");
