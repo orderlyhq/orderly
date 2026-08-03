@@ -3,8 +3,8 @@
 
   "rewrites": [
     {
-      "source": "/:slug",
-      "destination": "/loja.html?slug=:slug"
+      "source": "/((?!admin|cliente|js|css|img|assets|favicon.ico|.*\\..*).*)",
+      "destination": "/loja.html?slug=$1"
     }
   ]
 }
