@@ -1,8 +1,7 @@
 {
-  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/:slug((?!admin|cliente|js|css|img|assets|favicon.ico|.*\\.).+)",
+      "source": "/:slug((?!loja\\.html|index\\.html|admin|cliente|js|css|img|assets).*)",
       "destination": "/loja.html?slug=:slug"
     }
   ]
