@@ -1,134 +1,67 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus pedidos - Orderly</title>
 
-<title>Meus pedidos - Orderly</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
 
-<link rel="stylesheet" href="../css/styles.css">
-
-</head>
-
-
-<body class="cliente-body">
-
-
-<header class="perfil-header">
-
-    <a href="../index.html">
+  <body class="cliente-body">
+    <header class="perfil-header">
+      <a href="/">
         <strong>Orderly</strong>
-    </a>
+      </a>
 
-    <a href="./perfil.html">
-        Voltar
-    </a>
+      <a href="./perfil.html"> Voltar </a>
+    </header>
 
-</header>
+    <main class="perfil-container">
+      <section class="perfil-card">
+        <h1>📦 Meus pedidos</h1>
 
+        <p id="clienteInfo">Carregando pedidos...</p>
 
+        <div id="listaPedidos"></div>
+      </section>
+    </main>
 
-<main class="perfil-container">
+    <script type="module">
+      import { observarCliente } from "../js/services/auth-cliente.js";
 
+      import { db } from "../js/services/firebase.js";
 
-<section class="perfil-card">
+      import {
+        collection,
+        query,
+        where,
+        orderBy,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+      const lista = document.getElementById("listaPedidos");
 
-<h1>
-📦 Meus pedidos
-</h1>
+      observarCliente(async (user) => {
+        if (!user) {
+          window.location.href = "/cliente/login.html";
 
+          return;
+        }
 
-<p id="clienteInfo">
-Carregando pedidos...
-</p>
+        const pedidosRef = collection(db, "pedidos");
 
+        const q = query(
+          pedidosRef,
+          where("clienteUid", "==", user.uid),
+          orderBy("criadoEm", "desc"),
+        );
 
+        const snap = await getDocs(q);
 
-<div id="listaPedidos">
-
-
-</div>
-
-
-</section>
-
-
-</main>
-
-
-
-
-<script type="module">
-
-
-import {
-observarCliente
-} from "../js/services/auth-cliente.js";
-
-
-import {
-db
-} from "../js/services/firebase.js";
-
-
-import {
-collection,
-query,
-where,
-orderBy,
-getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-
-const lista =
-document.getElementById("listaPedidos");
-
-
-
-observarCliente(async(user)=>{
-
-
-if(!user){
-
-window.location.href="./login.html";
-
-return;
-
-}
-
-
-
-const pedidosRef =
-collection(db,"pedidos");
-
-
-const q =
-query(
-pedidosRef,
-where(
-"clienteUid",
-"==",
-user.uid
-),
-orderBy(
-"criadoEm",
-"desc"
-)
-);
-
-
-
-const snap =
-await getDocs(q);
-
-
-
-if(snap.empty){
-
-lista.innerHTML=`
+        if (snap.empty) {
+          lista.innerHTML = `
 
 <div class="pedido-vazio">
 
@@ -138,25 +71,15 @@ Você ainda não realizou nenhum pedido.
 
 `;
 
-return;
+          return;
+        }
 
-}
+        lista.innerHTML = "";
 
+        snap.forEach((doc) => {
+          const pedido = doc.data();
 
-
-lista.innerHTML="";
-
-
-
-snap.forEach(doc=>{
-
-
-const pedido =
-doc.data();
-
-
-
-lista.innerHTML += `
+          lista.innerHTML += `
 
 
 <div class="pedido-card">
@@ -192,17 +115,8 @@ Acompanhar pedido
 
 
 `;
-
-});
-
-
-});
-
-
-
-</script>
-
-
-</body>
-
+        });
+      });
+    </script>
+  </body>
 </html>

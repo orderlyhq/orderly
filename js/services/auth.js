@@ -1,17 +1,15 @@
 import { auth, db } from "./firebase.js";
 
-
 import {
   doc,
-  getDoc
+  getDoc,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 
 import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const ADMIN_SESSION_KEY = "orderly_admin_logado";
@@ -21,7 +19,6 @@ LOGIN FIREBASE
 ========================================================== */
 
 export async function login(usuarioOuEmail, senha) {
-
   let email = usuarioOuEmail.trim();
 
   // Permite login digitando apenas "admin"
@@ -29,16 +26,9 @@ export async function login(usuarioOuEmail, senha) {
     email = `${email}@mesafacil.com`;
   }
 
-  const resultado = await signInWithEmailAndPassword(
-    auth,
-    email,
-    senha
-  );
+  const resultado = await signInWithEmailAndPassword(auth, email, senha);
 
-  sessionStorage.setItem(
-    ADMIN_SESSION_KEY,
-    resultado.user.uid
-  );
+  sessionStorage.setItem(ADMIN_SESSION_KEY, resultado.user.uid);
 
   return resultado.user;
 }
@@ -75,7 +65,7 @@ export async function protegerPaginaAdmin() {
   });
 
   if (!usuario) {
-    window.location.href = "../login.html";
+    window.location.href = "/login.html";
 
     return false;
   }
@@ -84,11 +74,9 @@ export async function protegerPaginaAdmin() {
 }
 
 export async function recuperarSenha(email) {
-
   if (!email.includes("@")) {
     email = `${email}@mesafacil.com`;
   }
 
   return sendPasswordResetEmail(auth, email);
-
 }

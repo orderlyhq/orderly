@@ -107,7 +107,7 @@ function atualizarInterfaceLoja(config = {}) {
 
       if (!verificarCarrinhoAntesCheckout()) return;
 
-      window.location.href = "./pedido.html";
+      window.location.href = "/pedido.html";
     };
   }
 
@@ -137,7 +137,7 @@ function atualizarInterfaceLoja(config = {}) {
 
       if (!verificarCarrinhoAntesCheckout()) return;
 
-      window.location.href = "./pedido.html";
+      window.location.href = "/pedido.html";
     };
   }
 }

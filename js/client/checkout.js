@@ -6,9 +6,8 @@ import { carregarFormasPagamento } from "../services/payments.js";
 ========================================================== */
 
 export function irParaCheckout() {
-  window.location.href = "./pedido.html";
+  window.location.href = "/pedido.html";
 }
-
 
 /* ==========================================================
    INICIAR CHECKOUT
