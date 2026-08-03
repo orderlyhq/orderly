@@ -1,9 +1,8 @@
 {
   "cleanUrls": true,
-
   "rewrites": [
     {
-      "source": "/:slug([a-zA-Z0-9-]+)",
+      "source": "/:slug",
       "destination": "/loja.html?slug=:slug"
     }
   ]
