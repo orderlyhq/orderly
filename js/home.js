@@ -127,7 +127,7 @@ function criarCard(restaurante) {
   };
 
   template.querySelector(".restaurant-button").onclick = () => {
-    window.location.href = `./loja.html?slug=${restaurante.slug}`;
+    window.location.href = `/${restaurante.slug}`;
   };
 
   return template;
