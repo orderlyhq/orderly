@@ -2,10 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "description": "Mesa Fácil - Printer Service",
-  "main": "printer.js",
+  "main": "bot.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "node bot.js"
   },
   "keywords": [
     "mesa-facil",
@@ -22,7 +22,6 @@
     "firebase-admin": "^14.1.0",
     "mercadopago": "^3.2.1",
     "node-thermal-printer": "^4.5.0",
-    "puppeteer": "^25.3.0",
     "qrcode": "^1.5.4",
     "whatsapp-web.js": "^1.34.7"
   }
