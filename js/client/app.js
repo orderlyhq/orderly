@@ -32,7 +32,7 @@ function verificarCarrinhoAntesCheckout() {
   let carrinho = [];
 
   try {
-    carrinho = JSON.parse(localStorage.getItem("mesaFacilCarrinho")) || [];
+    carrinho = JSON.parse(localStorage.getItem("orderlyCarrinho")) || [];
   } catch {
     carrinho = [];
   }

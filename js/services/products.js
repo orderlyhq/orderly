@@ -67,7 +67,7 @@ export async function uploadImagemProduto(arquivo, nomeProduto = "produto") {
 
     formData.append("file", arquivo);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-    formData.append("folder", "mesa-facil/produtos");
+    formData.append("folder", "orderly/produtos");
     formData.append(
       "public_id",
       `${gerarNomeSeguroArquivo(nomeProduto)}-${Date.now()}`,

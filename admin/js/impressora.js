@@ -17,9 +17,9 @@ const btnTeste = document.getElementById("btnTeste");
 const btnReconectar = document.getElementById("btnReconectar");
 const btnLimparFila = document.getElementById("btnLimparFila");
 
-const STORAGE_CONFIG = "mesa_facil_printer_config";
-const STORAGE_HISTORY = "mesa_facil_printer_history";
-const STORAGE_PRINTED = "mesa_facil_printed_orders";
+const STORAGE_CONFIG = "orderly_printer_config";
+const STORAGE_HISTORY = "orderly_printer_history";
+const STORAGE_PRINTED = "orderly_printed_orders";
 
 let historico = [];
 let pedidosJaImpressos = [];

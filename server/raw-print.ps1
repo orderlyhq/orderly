@@ -94,7 +94,7 @@ public class RawPrinter
 
         DOCINFOA di = new DOCINFOA();
 
-        di.pDocName = "Mesa Facil";
+        di.pDocName = "Orderly";
         di.pDataType = "RAW";
 
 

@@ -237,7 +237,7 @@
 
       let carrinho = (() => {
         try {
-          return JSON.parse(localStorage.getItem("mesaFacilCarrinho")) || [];
+          return JSON.parse(localStorage.getItem("orderlyCarrinho")) || [];
         } catch {
           return [];
         }
@@ -1454,7 +1454,7 @@
 
           alert("Pedido enviado com sucesso!");
 
-          localStorage.removeItem("mesaFacilCarrinho");
+          localStorage.removeItem("orderlyCarrinho");
 
           window.location.href = `./status.html?id=${docRef.id}`;
         } catch (erro) {
@@ -1474,7 +1474,7 @@
 
           console.log("Configurações da loja:", configuracoesLoja);
 
-          document.title = `${configuracoesLoja?.loja?.nome || "Mesa Fácil"} - Pedido`;
+          document.title = `${configuracoesLoja?.loja?.nome || "Orderly"} - Pedido`;
 
           // 1) recuperar tipo escolhido no index
           const tipoSalvo = localStorage.getItem("tipoPedido");

@@ -55,7 +55,7 @@ export function carregarSidebar() {
       <div class="sidebar-top">
         <div class="logo">
           <span class="logo-icon">🍔</span>
-          <span class="logo-text">Mesa Fácil</span>
+          <span class="logo-text">Orderly</span>
         </div>
 
         <button

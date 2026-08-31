@@ -1,14 +1,15 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "Mesa Fácil - Printer Service",
-  "main": "bot.js",
+  "description": "Orderly - Printer Service",
+  "main": "printer.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node printer.js",
+    "install-chrome": "node scripts/install-chrome.js"
   },
   "keywords": [
-    "mesa-facil",
+    "orderly",
     "elgin",
     "escpos",
     "thermal"
@@ -20,8 +21,8 @@
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "firebase-admin": "^14.1.0",
-    "mercadopago": "^3.2.1",
     "node-thermal-printer": "^4.5.0",
+    "puppeteer": "24.38.0",
     "qrcode": "^1.5.4",
     "whatsapp-web.js": "^1.34.7"
   }

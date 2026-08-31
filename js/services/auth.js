@@ -1,9 +1,4 @@
-import { auth, db } from "./firebase.js";
-
-import {
-  doc,
-  getDoc,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth } from "./firebase.js";
 
 import {
   signInWithEmailAndPassword,
@@ -18,17 +13,23 @@ const ADMIN_SESSION_KEY = "orderly_admin_logado";
 LOGIN FIREBASE
 ========================================================== */
 
-export async function login(usuarioOuEmail, senha) {
-  let email = usuarioOuEmail.trim();
+export async function login(email, senha) {
+  email = String(email || "").trim();
 
-  // Permite login digitando apenas "admin"
-  if (!email.includes("@")) {
-    email = `${email}@mesafacil.com`;
+  if (!email) {
+    throw new Error("E-mail não informado.");
   }
 
-  const resultado = await signInWithEmailAndPassword(auth, email, senha);
+  const resultado = await signInWithEmailAndPassword(
+    auth,
+    email,
+    senha
+  );
 
-  sessionStorage.setItem(ADMIN_SESSION_KEY, resultado.user.uid);
+  sessionStorage.setItem(
+    ADMIN_SESSION_KEY,
+    resultado.user.uid
+  );
 
   return resultado.user;
 }
@@ -73,9 +74,15 @@ export async function protegerPaginaAdmin() {
   return true;
 }
 
+/* ==========================================================
+RECUPERAÇÃO DE SENHA
+========================================================== */
+
 export async function recuperarSenha(email) {
-  if (!email.includes("@")) {
-    email = `${email}@mesafacil.com`;
+  email = String(email || "").trim();
+
+  if (!email) {
+    throw new Error("E-mail não informado.");
   }
 
   return sendPasswordResetEmail(auth, email);

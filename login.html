@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login Admin - Mesa Fácil</title>
+    <title>Login Admin - Orderly</title>
     <link rel="icon" type="image/png" href="./assets/admin-icon.png" />
     <link rel="stylesheet" href="./css/login.css" />
   </head>
@@ -17,11 +17,11 @@
 
       <form id="loginForm" class="login-form">
         <div>
-          <label for="email">Usuário ou e-mail</label>
+          <label for="email">E-mail</label>
           <input
-            type="text"
+            type="email"
             id="email"
-            placeholder="Digite seu usuário ou e-mail"
+            placeholder="Digite seu e-mail"
             autocomplete="username"
             required
           />
@@ -89,7 +89,8 @@
         if (!email) return;
 
         if (!email.includes("@")) {
-          email = `${email}@mesafacil.com`;
+          alert("Informe um e-mail válido.");
+          return;
         }
 
         try {

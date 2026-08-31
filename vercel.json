@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/:slug((?!loja\\.html|index\\.html|admin|cliente|js|css|img|assets).*)",
+      "source": "/:slug((?!loja\\.html|index\\.html|admin|cliente|api|health|status|js|css|img|assets|favicon\\.ico).*)",
       "destination": "/loja.html?slug=:slug"
     }
   ]

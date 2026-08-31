@@ -8,7 +8,7 @@ import { db } from "../services/firebase.js";
 import { produtosRef } from "../services/firestore-paths.js";
 
 /* ==========================================================
-   MESA FÁCIL
+   ORDERLY
    BEST SELLERS / MAIS PEDIDOS
 ========================================================== */
 

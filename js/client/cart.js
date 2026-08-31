@@ -1,7 +1,7 @@
 import { listarAdicionais } from "../services/additionals.js";
 
 /* ==========================================================
-   MESA FÁCIL
+   ORDERLY
    CART SERVICE
    Carrinho com suporte a personalização / adicionais
 ========================================================== */
@@ -735,12 +735,12 @@ function removerItem(key) {
 }
 
 function salvarCarrinho() {
-  localStorage.setItem("mesaFacilCarrinho", JSON.stringify(carrinho));
+  localStorage.setItem("orderlyCarrinho", JSON.stringify(carrinho));
 }
 
 function carregarCarrinho() {
   try {
-    carrinho = JSON.parse(localStorage.getItem("mesaFacilCarrinho")) || [];
+    carrinho = JSON.parse(localStorage.getItem("orderlyCarrinho")) || [];
   } catch {
     carrinho = [];
   }

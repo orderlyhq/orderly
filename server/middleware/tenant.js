@@ -4,24 +4,32 @@ async function tenant(req, res, next) {
   try {
     const uid = req.user.uid;
 
-    const snapshot = await admin
-      .firestore()
-      .collection("usuarios")
-      .where("uid", "==", uid)
-      .limit(1)
-      .get();
+    const usuarioRef = admin.firestore().collection("usuarios").doc(uid);
 
-    if (snapshot.empty) {
+    const usuarioSnap = await usuarioRef.get();
+
+    if (!usuarioSnap.exists) {
       return res.status(403).json({
         success: false,
         message: "Usuário não pertence a nenhuma empresa.",
       });
     }
 
-    const usuario = snapshot.docs[0].data();
+    const usuario = usuarioSnap.data();
+
+    if (!usuario?.empresaId) {
+      return res.status(403).json({
+        success: false,
+        message: "Usuário sem empresa associada.",
+      });
+    }
 
     req.empresaId = usuario.empresaId;
-    req.usuario = usuario;
+
+    req.usuario = {
+      id: usuarioSnap.id,
+      ...usuario,
+    };
 
     next();
   } catch (error) {

@@ -31,7 +31,7 @@ if (-not (Test-Path $ServerDir)) {
 # VERIFICAR NODE
 # ----------------------------------------------------------
 
-$NodeRuntime = Join-Path $InstallerDir "runtime\node.exe"
+$NodeRuntime = Join-Path $InstallerDir "payload\node\node.exe"
 
 if (-not (Test-Path $NodeRuntime)) {
     throw "node.exe não encontrado em: $NodeRuntime"
@@ -41,7 +41,7 @@ if (-not (Test-Path $NodeRuntime)) {
 # VERIFICAR NSSM
 # ----------------------------------------------------------
 
-$Nssm = Join-Path $InstallerDir "bin\nssm.exe"
+$Nssm = Join-Path $InstallerDir "payload\nssm\nssm.exe"
 
 if (-not (Test-Path $Nssm)) {
     throw "nssm.exe não encontrado em: $Nssm"

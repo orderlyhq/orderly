@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $arquivo = "$env:USERPROFILE\web-client\server\printer.js"
-$servico = "MesaFacilPrinter"
+$servico = "OrderlyPrinter"
 
 $diretorio = Split-Path $arquivo
 

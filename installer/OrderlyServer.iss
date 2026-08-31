@@ -141,6 +141,18 @@ Source: "..\server\node_modules\*"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; ----------------------------------------------------------
+; CHROMIUM / PUPPETEER
+; ----------------------------------------------------------
+
+Source: "..\server\.puppeteer\*"; \
+    DestDir: "{app}\server\.puppeteer"; \
+    Flags: ignoreversion recursesubdirs createallsubdirs
+
+Source: "..\server\scripts\*"; \
+    DestDir: "{app}\server\scripts"; \
+    Flags: ignoreversion recursesubdirs createallsubdirs
+
+; ----------------------------------------------------------
 ; SCRIPTS AUXILIARES
 ; ----------------------------------------------------------
 
@@ -162,8 +174,8 @@ Name: "{app}"
 Name: "{app}\server"
 Name: "{app}\node"
 Name: "{app}\nssm"
+Name: "{app}\server\.puppeteer"
 
-; Dados persistentes do Orderly
 Name: "{commonappdata}\Orderly"
 Name: "{commonappdata}\Orderly\logs"
 Name: "{commonappdata}\Orderly\whatsapp"

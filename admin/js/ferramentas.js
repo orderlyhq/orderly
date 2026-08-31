@@ -426,9 +426,7 @@ async function resetarConfiguracoes(){
 function limparCarrinhoLocal(){
 
 
-    localStorage.removeItem(
-        "mesaFacilCarrinho"
-    );
+    localStorage.removeItem("orderlyCarrinho");
 
 
     ultimaAcao = {
