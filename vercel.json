@@ -4,5 +4,11 @@
       "source": "/:slug((?!loja\\.html|index\\.html|admin|cliente|api|health|status|js|css|img|assets|favicon\\.ico).*)",
       "destination": "/loja.html?slug=:slug"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/financeiro/verificar-vencimentos",
+      "schedule": "0 3 * * *"
+    }
   ]
 }

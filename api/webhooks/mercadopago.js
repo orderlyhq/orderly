@@ -2,27 +2,17 @@ import crypto from "crypto";
 import { getDb } from "../_lib/firebase-admin.js";
 
 function obterAssinatura(headers) {
-  return (
-    headers["x-signature"] ||
-    headers["X-Signature"] ||
-    ""
-  );
+  return headers["x-signature"] || "";
 }
 
 function obterRequestId(headers) {
-  return (
-    headers["x-request-id"] ||
-    headers["X-Request-Id"] ||
-    ""
-  );
+  return headers["x-request-id"] || "";
 }
 
 function extrairParametrosAssinatura(signature) {
-  const partes = signature.split(",");
-
   const resultado = {};
 
-  for (const parte of partes) {
+  for (const parte of signature.split(",")) {
     const [chave, valor] = parte.trim().split("=");
 
     if (chave && valor) {
@@ -70,14 +60,46 @@ function validarAssinatura(req, dataId) {
     .update(manifest)
     .digest("hex");
 
-  try {
-    return crypto.timingSafeEqual(
-      Buffer.from(expected),
-      Buffer.from(v1),
-    );
-  } catch {
+  const expectedBuffer = Buffer.from(expected, "hex");
+  const receivedBuffer = Buffer.from(v1, "hex");
+
+  if (expectedBuffer.length !== receivedBuffer.length) {
     return false;
   }
+
+  return crypto.timingSafeEqual(
+    expectedBuffer,
+    receivedBuffer,
+  );
+}
+
+function extrairReferencia(externalReference) {
+  if (!externalReference) {
+    return null;
+  }
+
+  /*
+   * Formato esperado:
+   *
+   * empresaId:cobrancaId
+   */
+
+  const partes = externalReference.split(":");
+
+  if (partes.length !== 2) {
+    return null;
+  }
+
+  const [empresaId, cobrancaId] = partes;
+
+  if (!empresaId || !cobrancaId) {
+    return null;
+  }
+
+  return {
+    empresaId,
+    cobrancaId,
+  };
 }
 
 export default async function handler(req, res) {
@@ -104,10 +126,18 @@ export default async function handler(req, res) {
       dataId,
     });
 
+    if (!dataId) {
+      return res.status(400).json({
+        success: false,
+        message: "ID do pagamento não informado.",
+      });
+    }
+
     /*
-     * Validação da assinatura.
+     * Valida assinatura antes de processar.
      */
-    if (!validarAssinatura(req, dataId)) {
+
+    if (!validarAssinatura(req, String(dataId))) {
       console.warn(
         "[Mercado Pago] Assinatura inválida.",
       );
@@ -119,9 +149,9 @@ export default async function handler(req, res) {
     }
 
     /*
-     * Neste primeiro momento processamos apenas
-     * notificações relacionadas a pagamentos.
+     * Só processamos pagamentos.
      */
+
     if (tipo !== "payment") {
       console.log(
         "[Mercado Pago] Evento ignorado:",
@@ -134,17 +164,6 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!dataId) {
-      return res.status(400).json({
-        success: false,
-        message: "ID do pagamento não informado.",
-      });
-    }
-
-    /*
-     * Aqui iremos consultar o Mercado Pago
-     * para obter o estado REAL do pagamento.
-     */
     const accessToken =
       process.env.MERCADO_PAGO_ACCESS_TOKEN;
 
@@ -154,9 +173,16 @@ export default async function handler(req, res) {
       );
     }
 
+    /*
+     * Consulta o pagamento diretamente
+     * no Mercado Pago.
+     */
+
     const resposta = await fetch(
       `https://api.mercadopago.com/v1/payments/${dataId}`,
       {
+        method: "GET",
+
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -187,76 +213,140 @@ export default async function handler(req, res) {
     );
 
     /*
-     * Identificação da empresa.
-     *
-     * O external_reference será usado para
-     * relacionar o pagamento à empresa Orderly.
+     * Recupera empresa + cobrança.
      */
-    const externalReference =
-      pagamento.external_reference;
 
-    if (!externalReference) {
+    const referencia = extrairReferencia(
+      pagamento.external_reference,
+    );
+
+    if (!referencia) {
       console.warn(
-        "[Mercado Pago] Pagamento sem external_reference.",
+        "[Mercado Pago] external_reference inválido:",
+        pagamento.external_reference,
       );
 
       return res.status(200).json({
         success: true,
         ignored: true,
-        reason: "SEM_EXTERNAL_REFERENCE",
+        reason: "EXTERNAL_REFERENCE_INVALIDO",
       });
     }
 
-    const empresaId = externalReference;
+    const {
+      empresaId,
+      cobrancaId,
+    } = referencia;
 
     const db = getDb();
 
-    const assinaturaRef = db
+    const empresaRef = db
       .collection("empresas")
-      .doc(empresaId)
-      .collection("configuracoes")
-      .doc("assinatura");
+      .doc(empresaId);
+
+    const cobrancaRef = empresaRef
+      .collection("cobrancas")
+      .doc(cobrancaId);
 
     /*
-     * Atualiza a assinatura.
+     * Busca a cobrança.
      */
-    await assinaturaRef.set(
-      {
-        mercadoPagoPaymentId: String(pagamento.id),
 
-        statusPagamento:
-          pagamento.status || "unknown",
+    const cobrancaSnap = await cobrancaRef.get();
 
-        statusDetalhado:
-          pagamento.status_detail || null,
+    if (!cobrancaSnap.exists) {
+      console.warn(
+        "[Mercado Pago] Cobrança não encontrada:",
+        cobrancaId,
+      );
 
-        valor:
-          pagamento.transaction_amount || null,
+      return res.status(200).json({
+        success: true,
+        ignored: true,
+        reason: "COBRANCA_NAO_ENCONTRADA",
+      });
+    }
 
-        moeda:
-          pagamento.currency_id || "BRL",
+    /*
+     * Atualiza cobrança.
+     */
 
-        metodoPagamento:
-          pagamento.payment_method_id || null,
+    const statusPagamento =
+      pagamento.status || "unknown";
 
-        atualizadoEm:
-          new Date(),
-      },
+    const atualizacao = {
+      mercadoPagoPaymentId: String(pagamento.id),
+
+      status: statusPagamento,
+
+      statusDetalhado:
+        pagamento.status_detail || null,
+
+      atualizadoEm: new Date(),
+    };
+
+    if (pagamento.date_approved) {
+      atualizacao.pagoEm = new Date(
+        pagamento.date_approved,
+      );
+    }
+
+    await cobrancaRef.set(
+      atualizacao,
       {
         merge: true,
       },
     );
 
+    /*
+     * Se o pagamento foi aprovado,
+     * libera a empresa.
+     */
+
+    if (statusPagamento === "approved") {
+      await empresaRef.set(
+        {
+          bloqueada: false,
+
+          motivoBloqueio: null,
+
+          ultimaCobrancaPaga: cobrancaId,
+
+          atualizadoEm: new Date(),
+        },
+        {
+          merge: true,
+        },
+      );
+
+      console.log(
+        `[Mercado Pago] Cobrança ${cobrancaId} paga. Empresa ${empresaId} desbloqueada.`,
+      );
+    }
+
+    /*
+     * Pagamento rejeitado/cancelado.
+     *
+     * Não bloqueamos imediatamente.
+     * O bloqueio acontece pelo vencimento.
+     */
+
     console.log(
-      `[Mercado Pago] Assinatura da empresa ${empresaId} atualizada.`,
+      `[Mercado Pago] Cobrança ${cobrancaId} atualizada para ${statusPagamento}.`,
     );
 
     return res.status(200).json({
       success: true,
+
       processed: true,
+
       empresaId,
+
+      cobrancaId,
+
       pagamentoId: pagamento.id,
-      status: pagamento.status,
+
+      status: statusPagamento,
     });
   } catch (error) {
     console.error(
