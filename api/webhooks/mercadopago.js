@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { getDb } from "../_lib/firebase.js";
+import { getDb } from "../_lib/firebase-admin.js";
 
 function obterAssinatura(headers) {
   return (
